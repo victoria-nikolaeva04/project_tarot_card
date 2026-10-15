@@ -28,6 +28,10 @@ def home():
     
     # Converting DataFrame into a Dictionary 
     data_records = df.to_dict(orient='records')
+
+    # Dynamically injecting new filename key to each dict. item
+    for record in data_records:
+        record["image_file"] = get_image_filename(record["card_name"])
     
     #Passing into index.html
     return render_template('index.html', tarot_cards=data_records)
