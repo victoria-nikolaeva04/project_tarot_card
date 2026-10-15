@@ -13,7 +13,113 @@
         <a href="{{ url_for('about') }}">About</a>
     </nav>
 
-    <h1>About</h1>
-    <p></p>
+    <div class="container">
+        <div class="about_header">
+            <h1>The Rider-Waite-Smith Tarot</h1>
+            <p>Exploring the history, esoteric blueprints, and software architecture behind the deck.</p>
+        </div>
+
+        <!-- The Core History -->
+        <div class="content_card">
+            <h2>The Historic Overview</h2>
+            <p>Originally published in December 1910 by the Rider Company, the <strong>Rider-Waite-Smith (RWS) Tarot Deck</strong> is widely celebrated as the foundation for modern Western divination tools. Conceived by mystic and occult academic Arthur Edward Waite, the system dismantled standard playing card conventions to create an illustrative structural map of the human psyche.</p>
+            
+            <p>While often historically shortened to "Rider-Waite," the deck owes its global legacy directly to visionary artist and illustrator <strong>Pamela Colman Smith</strong>. She broke esoteric traditions by illustrating rich, fully realized narrative genre scenes across the 56 Minor Arcana "pip" cards—making complex allegorical concepts instinctively scannable to the human eye for the very first time.</p>
+            
+            <div class="history_grid">
+                <div class="history_item">
+                    <h3>Arthur E. Waite</h3>
+                    <p>Designed the foundational symbolic schemas, alignments, and occult frameworks for the deck.</p>
+                </div>
+                <div class="history_item">
+                    <h3>Pamela C. Smith</h3>
+                    <p>Drew all 78 iconic watercolor designs, infusing theater aesthetics into traditional symbolism.</p>
+                </div>
+                <div class="history_item">
+                    <h3>1910 Publication</h3>
+                    <p>Released into the public domain over a century ago, enabling global modern adaptation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Esoteric Symbolism & Structure -->
+        <div class="content_card">
+            <h2>The Four Elemental Kingdoms</h2>
+            <p>The core structural design of the dataset maps directly to ancient elemental philosophy. The Minor Arcana is divided into four distinct suits, each representing a primary area of daily human life, cognitive processing, and spiritual lessons:</p>
+            
+            <div class="symbolism_grid">
+                <div class="suit-box suit-wands">
+                    <h3>Wands</h3>
+                    <strong>Element: Fire</strong>
+                    <p>Governs passion, creativity, willpower, ambition, and initial career sparks.</p>
+                </div>
+                <div class="suit_box suit_cups">
+                    <h3>Cups</h3>
+                    <strong>Element: Water</strong>
+                    <p>Governs emotions, relationships, intuition, imagination, and deep healing connections.</p>
+                </div>
+                <div class="suit_box suit_swords">
+                    <h3>Swords</h3>
+                    <strong>Element: Air</strong>
+                    <p>Governs intellect, action, power, truth, conflicts, and clear logical communication.</p>
+                </div>
+                <div class="suit_box suit_pents">
+                    <h3>Pentacles</h3>
+                    <strong>Element: Earth</strong>
+                    <p>Governs finances, work stability, physical manifestations, family material wealth, and assets.</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 25px;">Furthermore, the Major Arcana maps out cosmic archetypes. Your dataset actively tracks these associations through the <code>zodiac_sign</code> and celestial rules—linking cards like <strong>The Emperor</strong> to the fiery authority of <em>Aries</em>, or <strong>The High Priestess</strong> to the subconscious mystery of the <em>Moon</em>.</p>
+        </div>
+
+        <!-- Behind the Code -->
+        <div class="content_card">
+            <h2>Behind the Code: Software Architecture</h2>
+            <p>This web dashboard is engineered as a lightweight, full-stack data pipeline. Rather than overcomplicating data requests, the app splits responsibilities cleanly between the server's backend and the client's frontend interface:</p>
+            
+            <p><strong>1. Server Processing (Python & Flask):</strong> When the application starts up, Python reads the raw tabular data from <code>tarot_card_meanings.csv</code> exactly once into server memory. It uses a robust, customized Regex script (<code>get_image_filename</code>) to systematically bridge names like <em>"Ace of Cups"</em> to specific image patterns like <code>Cups01.jpg</code> or alphanumeric strings like <code>12_Hanged_Man.jpg</code> before serving pages to users.</p>
+            
+            <p><strong>2. Interface Interactions (JavaScript Engine):</strong> Instead of sending data requests back to Python for every search keystroke, the app renders all 78 card records into custom HTML5 <code>data-*</code> attributes. The embedded JavaScript layer listens for typing and filter tab clicks, screening the DOM grid locally in under 1 millisecond for lag-free performance.</p>
+
+            <div class="tech_flow">
+                [tarot_card_meanings.csv] ➔ <span>Python Flask</span> (Parses file & matches images) ➔ <span>Jinja2 Template</span> (Embeds data attributes) ➔ <span>Browser Engine</span> (Instant JS Search/Tabs Filtering)
+            </div>
+        </div>
+
+        <!-- Section 2: Technical Dataset Anatomy -->
+        <div class="content_card">
+            <h2>System & Dataset Specifications</h2>
+            <p>This web dashboard references an automated database architecture that combines raw historic image assets with modern semantic analysis arrays. The engine uses strict positional processing rules to link dataset rows dynamically to clean local directories.</p>
+            
+            <ul class="spec_list">
+                <li>
+                    <span class="spec_label">Total Card Layout Capacity</span>
+                    <span class="spec_value">78 Cards (Full System Pool)</span>
+                </li>
+                <li>
+                    <span class="spec_label">Major Arcana Archetypes</span>
+                    <span class="spec_value">22 Cards (0 - The Fool to 21 - The World)</span>
+                </li>
+                <li>
+                    <span class="spec_label">Minor Arcana Structural Suits</span>
+                    <span class="spec_value">56 Cards (Wands, Cups, Swords, Pentacles)</span>
+                </li>
+                <li>
+                    <span class="spec_label">Elemental Classes Monitored</span>
+                    <span class="spec_value">Fire, Water, Air, Earth</span>
+                </li>
+                <li>
+                    <span class="spec_label">Frontend Interaction Framework</span>
+                    <span class="spec_value">Vanilla JS / Local Node Vector Filters</span>
+                </li>
+                <li>
+                    <span class="spec_label">Backend Environment</span>
+                    <span class="spec_value">Python Flask (Data Serialization Routing)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
 </body>
 </html>
