@@ -6,25 +6,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <nav>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('reading') }}">Daily Reading</a>
+        <a href="{{ url_for('guide') }}">Arcana Guide</a>
+        <a href="{{ url_for('about') }}">About</a>
+    </nav>
 
     <h1>List of Cards</h1>
     <p>Test Run of Python/CSV connection</p>
-<!--
-   <table>
-        <thead>
-            <tr>
-                <th>Card Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for card in tarot_cards %}
-            <tr>
-                <td>{{ card.card_name }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
--->
+
     <div class="tarot-grid">
         {% for card in tarot_cards %}
         <div class="card-box">

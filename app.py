@@ -5,6 +5,10 @@ import pandas as pd
 
 app = Flask(__name__)
 
+# Global Variable
+df = pd.read_csv('tarot_card_meanings.csv')
+df.columns = df.columns.str.strip()
+
 cards_directory = os.path.join(app.static_folder, "images", "cards")
 
 # Image files use "Pents" instead of "Pentacles"
@@ -39,20 +43,33 @@ def get_image_filename(card_name):
     # Default fallback
     return "Cover.jpg"
 
+# Convert dataset into records and pre-calculate all image filenames
+data_records = df.to_dict(orient='records')
+for record in data_records:
+    record["image_file"] = get_image_filename(record["card_name"])
 
+
+# --- Website Navigation ---
+# Landing Page
 @app.route('/')
 def home():
-    df = pd.read_csv('tarot_card_meanings.csv')
-    
-    # Converting DataFrame into a Dictionary 
-    data_records = df.to_dict(orient='records')
+    return render_template('index.html', tarot_cards = data_records)
 
-    # Dynamically injecting new filename key to each dict. item
-    for record in data_records:
-        record["image_file"] = get_image_filename(record["card_name"])
-    
-    #Passing into index.html
-    return render_template('index.html', tarot_cards=data_records)
+# Readings
+@app.route('/reading')
+def reading():
+    return render_template('reading.html', tarot_cards = data_records)
+
+# Guide/Card Dictionary
+@app.route('/guide')
+def guide():
+    return render_template('guide.html', tarot_cards = data_records)
+
+# About Page
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
