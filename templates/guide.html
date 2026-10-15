@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarot Card Reader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+</head>
+<body>
+    <nav class="nav_bar">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('reading') }}">Daily Reading</a>
+        <a href="{{ url_for('guide') }}">Arcana Guide</a>
+        <a href="{{ url_for('about') }}">About</a>
+    </nav>
+
+    <div class="container">
+        <h1>Tarot Guide</h1>
+        
+        <div class="search_container">
+            <input type="text" id="global_search" class="search_input" placeholder="Find Your Card...">
+        </div>
+
+        <!-- Catagory Tabs -->
+        <div class="tabs_container">
+            <button class="tab_btn active" data_category="all">All Cards</button>
+            <button class="tab_btn" data_category="major">Major Arcana</button>
+            <button class="tab_btn" data_category="minor">Minor Arcana</button>
+            <button class="tab_btn" data_category="fire">Fire</button>
+            <button class="tab_btn" data_category="water">Water</button>
+            <button class="tab_btn" data_category="air">Air</button>
+            <button class="tab_btn" data_category="earth">Earth</button>
+        </div>
+
+        <div class="tarot_grid" id="tarot_grid">
+            {% for card in tarot_cards %}
+            <!-- Storing all metadata fields in data attributes for JS to search -->
+            <div class="card_box" 
+                 data_name="{{ card.card_name | lower }}" 
+                 data_arcana="{{ card.arcana | lower if card.arcana else '' }}"
+                 data_suit="{{ card.suit | lower if card.suit else '' }}"
+                 data_element="{{ card.element | lower if card.element else 'none' }}"
+                 data_sign="{{ card.zodiac_sign | lower if card.zodiac_sign else '' }}"
+                 data_meanings="{{ card.upright_meaning | lower }} {{ card.reversed_meaning | lower }} {{ card.love_meaning | lower }} {{ card.career_meaning | lower }}">
+                
+                <img class="card_img" 
+                     src="{{ url_for('static', filename='images/cards/' + card.image_file) }}" 
+                     alt="{{ card.card_name }}">
+                
+                <div>
+                    {% if card.element %}
+                        <span class="badge badge_{{ card.element | lower }}">{{ card.element }}</span>
+                    {% else %}
+                        <span class="badge badge_none">No Element</span>
+                    {% endif %}
+                </div>
+
+                <h3 style="margin: 5px 0 2px 0; font-size: 18px;">{{ card.card_name }}</h3>
+                <span class="arcana_type">{{ card.arcana }} Arcana</span>
+                
+                <p style="font-size: 13px; font-style: italic; color: #555; margin-top: 10px;">
+                    "{{ card.upright_meaning }}"
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Filter/Searchbar JS Script -->
+    <script>
+        const search_input = document.getElementById('global_search');
+        const tab_buttons = document.querySelectorAll('.tab_btn');
+        const card_boxes = document.querySelectorAll('.card_box');      
+        let active_category = 'all';
+
+        function execute_universal_filter() {
+            const query = search_input.value.toLowerCase().trim();
+
+            card_boxes.forEach(card => {
+                const name = card.getAttribute('data_name');
+                const arcana = card.getAttribute('data_arcana');
+                const suit = card.getAttribute('data_suit');
+                const element = card.getAttribute('data_element');
+                const sign = card.getAttribute('data_sign');
+                const meanings = card.getAttribute('data_meanings');
+
+                // Text Search Check
+                const matches_search = name.includes(query) || 
+                                      arcana.includes(query) || 
+                                      suit.includes(query) || 
+                                      element.includes(query) || 
+                                      sign.includes(query) || 
+                                      meanings.includes(query);
+
+                // Tab Filter Check
+                let matches_category = false;
+                if (active_category === 'all') {
+                    matches_category = true;
+                } else if (active_category === 'major' || active_category === 'minor') {
+                    matches_category = (arcana === active_category);
+                } else {
+                    matches_category = (element === active_category);
+                }
+
+                if (matches_search && matches_category) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Search Input Event
+        search_input.addEventListener('input', execute_universal_filter);
+
+        // Category Tab Clicking Event
+        tab_buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                tab_buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                active_category = button.getAttribute('data_category');
+                execute_universal_filter();
+            });
+        });
+    </script>
+
+</body>
+</html>

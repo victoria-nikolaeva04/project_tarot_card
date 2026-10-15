@@ -4,37 +4,14 @@ body {
     background-color: #f4f4f9; 
 }
 
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    margin-top: 20px; 
-    background: white; 
-}
-
-th, td { 
-    padding: 12px; 
-    text-align: left; 
-    border-bottom: 1px solid #ddd; 
-}
-
-th { 
-    background-color: #007BFF; 
-    color: white; 
-}
-
-tr:hover { 
-    background-color: #f1f1f1; 
-}
-
-
-.tarot-grid {
+.tarot_grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
     padding: 20px;
 }
 
-.card-box {
+.card_box {
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
@@ -42,7 +19,7 @@ tr:hover {
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.card-img {
+.card_img {
     width: 100%;
     max-width: 180px;
     height: auto;
