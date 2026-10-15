@@ -46,6 +46,11 @@
                 <img class="card_img" 
                      src="{{ url_for('static', filename='images/cards/' + card.image_file) }}" 
                      alt="{{ card.card_name }}">
+
+                <!-- Flip Card Button -->
+                <div>
+                    <button class="flip_btn" type="button">Flip Position</button>
+                </div>
                 
                 <div>
                     {% if card.element %}
@@ -58,72 +63,17 @@
                 <h3 style="margin: 5px 0 2px 0; font-size: 18px;">{{ card.card_name }}</h3>
                 <span class="arcana_type">{{ card.arcana }} Arcana</span>
                 
-                <p style="font-size: 13px; font-style: italic; color: #555; margin-top: 10px;">
-                    "{{ card.upright_meaning }}"
-                </p>
+                <span class="orientation_label label_upright">Upright</span>
+                <p class="meaning_text" style="font-size: 13px; font-style: italic; color: #555; margin-top: 4px;"
+                   data-upright="{{ card.upright_meaning }}"
+                   data-reversed="{{ card.reversed_meaning }}">"{{ card.upright_meaning }}"</p>
             </div>
             {% endfor %}
         </div>
     </div>
 
     <!-- Filter/Searchbar JS Script -->
-    <script>
-        const search_input = document.getElementById('global_search');
-        const tab_buttons = document.querySelectorAll('.tab_btn');
-        const card_boxes = document.querySelectorAll('.card_box');      
-        let active_category = 'all';
-
-        function execute_universal_filter() {
-            const query = search_input.value.toLowerCase().trim();
-
-            card_boxes.forEach(card => {
-                const name = card.getAttribute('data_name');
-                const arcana = card.getAttribute('data_arcana');
-                const suit = card.getAttribute('data_suit');
-                const element = card.getAttribute('data_element');
-                const sign = card.getAttribute('data_sign');
-                const meanings = card.getAttribute('data_meanings');
-
-                // Text Search Check
-                const matches_search = name.includes(query) || 
-                                      arcana.includes(query) || 
-                                      suit.includes(query) || 
-                                      element.includes(query) || 
-                                      sign.includes(query) || 
-                                      meanings.includes(query);
-
-                // Tab Filter Check
-                let matches_category = false;
-                if (active_category === 'all') {
-                    matches_category = true;
-                } else if (active_category === 'major' || active_category === 'minor') {
-                    matches_category = (arcana === active_category);
-                } else {
-                    matches_category = (element === active_category);
-                }
-
-                if (matches_search && matches_category) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        }
-
-        // Search Input Event
-        search_input.addEventListener('input', execute_universal_filter);
-
-        // Category Tab Clicking Event
-        tab_buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                tab_buttons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                active_category = button.getAttribute('data_category');
-                execute_universal_filter();
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='guide.js') }}"></script>
 
 </body>
 </html>
