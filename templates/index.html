@@ -13,23 +13,8 @@
         <a href="{{ url_for('about') }}">About</a>
     </nav>
 
-    <h1>List of Cards</h1>
-    <p>Test Run of Python/CSV connection</p>
-
-    <div class="tarot-grid">
-        {% for card in tarot_cards %}
-        <div class="card-box">
-            <img class="card-img" 
-                 src="{{ url_for('static', filename='images/cards/' + card.image_file) }}" 
-                 alt="{{ card.card_name }}">
-            
-            <h3>{{ card.card_name }}</h3>
-            <p><strong>Arcana:</strong> {{ card.arcana }}</p>
-            <p><strong>Element:</strong> {{ card.element }}</p>
-            <p><em>"{{ card.upright_meaning }}"</em></p>
-        </div>
-        {% endfor %}
-    </div>
+    <h1>Landing Page</h1>
+    <p></p>
 
 </body>
 </html>

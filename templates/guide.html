@@ -15,5 +15,20 @@
 
     <h1>Guide/Dictionary</h1>
     <p></p>
+    
+    <div class="tarot-grid">
+        {% for card in tarot_cards %}
+        <div class="card-box">
+            <img class="card-img" 
+                 src="{{ url_for('static', filename='images/cards/' + card.image_file) }}" 
+                 alt="{{ card.card_name }}">
+            
+            <h3>{{ card.card_name }}</h3>
+            <p><strong>Arcana:</strong> {{ card.arcana }}</p>
+            <p><strong>Element:</strong> {{ card.element }}</p>
+            <p><em>"{{ card.upright_meaning }}"</em></p>
+        </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
