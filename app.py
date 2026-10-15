@@ -5,22 +5,40 @@ import pandas as pd
 
 app = Flask(__name__)
 
-def get_image_filename(card_name):
-    name_clean = card_name.lower()
-    name_clean = re.sub(r"[^\w\s\-]", "", name_clean)
-    name_clean = re.sub(r"[\s\-]+", "_", name_clean)
+cards_directory = os.path.join(app.static_folder, "images", "cards")
 
-    cards_directory = os.path.join(app.static_folder, "images", "cards")
+# Image files use "Pents" instead of "Pentacles"
+suit_prefix = {
+    "Wands": "Wands", "Cups": "Cups", "Swords": "Swords", "Pentacles": "Pents"
+    }
+
+# Minor Arcana ranks map to the 01-14 numbering in the image filenames
+number_rank = {
+    "Ace": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5, "Six": 6, "Seven": 7,
+    "Eight": 8, "Nine": 9, "Ten": 10, "Page": 11, "Knight": 12, "Queen": 13, "King": 14,
+    }
+
+def get_image_filename(card_name):
+    # Minor Arcana: "Ace of Cups" -> "Cups01.jpg"
+    match = re.fullmatch(r"(\w+) of (\w+)", card_name)
+    if match and match.group(1) in number_rank and match.group(2) in suit_prefix:
+        rank, suit = match.groups()
+        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.jpg"
+
+    # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.jpg"
+    name_clean = re.sub(r"^The\s+", "", card_name)
+    name_clean = re.sub(r"\s+", "_", name_clean).lower()
 
     if os.path.exists(cards_directory):
         for filename in os.listdir(cards_directory):
-            if filename.lower().endswith(f"{name_clean}.jpg") or filename.lower().endswith(
-                f"{name_clean}.png"
-            ):
+            stem = os.path.splitext(filename)[0].lower()
+            # Strip the "00_" number before comparison
+            if re.sub(r"^\d+_", "", stem) == name_clean:
                 return filename
-            
+
     # Default fallback
-    return f"{name_clean}.jpg"
+    return "Cover.jpg"
+
 
 @app.route('/')
 def home():
