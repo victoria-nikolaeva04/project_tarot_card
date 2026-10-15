@@ -46,6 +46,11 @@
                 <img class="card_img" 
                      src="{{ url_for('static', filename='images/cards/' + card.image_file) }}" 
                      alt="{{ card.card_name }}">
+
+                <!-- Flip Card Button -->
+                <div>
+                    <button class="flip_btn" type="button">Flip Position</button>
+                </div>
                 
                 <div>
                     {% if card.element %}
@@ -58,9 +63,10 @@
                 <h3 style="margin: 5px 0 2px 0; font-size: 18px;">{{ card.card_name }}</h3>
                 <span class="arcana_type">{{ card.arcana }} Arcana</span>
                 
-                <p style="font-size: 13px; font-style: italic; color: #555; margin-top: 10px;">
-                    "{{ card.upright_meaning }}"
-                </p>
+                <span class="orientation_label label_upright">Upright</span>
+                <p class="meaning_text" style="font-size: 13px; font-style: italic; color: #555; margin-top: 4px;"
+                   data-upright="{{ card.upright_meaning }}"
+                   data-reversed="{{ card.reversed_meaning }}">"{{ card.upright_meaning }}"</p>
             </div>
             {% endfor %}
         </div>

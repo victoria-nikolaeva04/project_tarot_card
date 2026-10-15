@@ -58,3 +58,19 @@ tab_buttons.forEach(button => {
         execute_universal_filter();
     });
 });
+
+
+// Flip Position: Invert the card image and swap upright/reversed meaning
+card_boxes.forEach(card => {
+    const flip_btn = card.querySelector('.flip_btn');
+    const img = card.querySelector('.card_img');
+    const text = card.querySelector('.meaning_text');
+    const label = card.querySelector('.orientation_label');
+
+    flip_btn.addEventListener('click', () => {
+        const is_reversed = img.classList.toggle('inverted');
+        text.textContent = '"' + (is_reversed ? text.dataset.reversed : text.dataset.upright) + '"';
+        label.textContent = is_reversed ? 'Reversed' : 'Upright';
+        label.className = 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright');
+    });
+});
