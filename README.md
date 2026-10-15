@@ -6,10 +6,24 @@ A tarot card reader/dictionary for the whimsical people
  - Set up basic files + connections between python, flask, html/css, and the browser
  - Added in the dataset that will be used
 
+## Day 2
+ - Added Tarot Card Images
+ - Dynamically linked the card images to the dataset
+ - Added multiple routes/pages (home, reading, guide, about)
+ - Added search/filter capabilities for the cards
+ - Added a way to see the reverse meanings of the card
+ - Added basic 'content' to About (may change/move content later)
+ - Did a little bit of styling
+
+## Use of AI
+Used AI as an additional tool for debugging and building basic 'content' (for example - text within the 'About' page)
 
 ## Citations
 ### Dataset of Tarot Cards
 Aura, S., & Deckaura. (2026). Tarot Card Meanings: A Complete 78-Card Semantic Dataset [Dataset]. Zenodo. https://doi.org/10.5281/zenodo.19475329
 ### Tarot Card Images
-Rider-Waite-Smith Deck is in the public domain
+Grab Images from: https://github.com/mixvlad/TarotCards
+Original Creator: Rider-Waite-Smith -> Within the Public Domain
+
+
 
