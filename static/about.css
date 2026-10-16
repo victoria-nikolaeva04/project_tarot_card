@@ -1,0 +1,285 @@
+/* =========================================================
+   About page styles
+   Sections follow the order of templates/about.html:
+     1. Page base
+     2. Header
+     3. Text blocks
+     4. The site (feature tiles)
+     5. Why tarot (pull quote)
+     6. The creator
+     7. The deck (history + elemental kingdoms)
+     8. How it's built
+     9. Responsive
+   ========================================================= */
+
+
+/* ---------- Page base ---------- */
+.about { overflow: hidden; }
+
+.about_section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3.5rem clamp(1rem, 4vw, 3rem) 4rem;
+}
+
+.about code {
+    padding: 0.1em 0.45em;
+    border: 1px solid rgba(230, 193, 120, 0.25);
+    border-radius: 6px;
+    background: rgba(155, 93, 229, 0.16);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.85em;
+    color: var(--lilac);
+}
+
+.about strong { color: var(--parchment); font-weight: 600; }
+.about em { color: var(--lilac); }
+
+
+/* ---------- Header ---------- */
+.about_hero { position: relative; }
+
+.about_header {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: clamp(3.5rem, 9vh, 6rem) clamp(1rem, 4vw, 3rem) 3.5rem;
+    text-align: center;
+}
+
+.about_header .section_eyebrow { letter-spacing: 0.4em; }
+
+.about_header h1 {
+    margin: 1rem 0 1.4rem;
+    font-family: var(--font-body);
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    color: var(--parchment);
+}
+
+.about_header p {
+    max-width: 32rem;
+    margin-inline: auto;
+    font-size: 1.25rem;
+    color: var(--muted);
+}
+
+
+/* ---------- Text blocks ---------- */
+.about_text { max-width: 44rem; }
+.about_text p { margin-bottom: 1.1rem; font-size: 1.15rem; color: var(--muted); }
+.about_text p.about_lead { font-size: 1.4rem; line-height: 1.45; color: var(--parchment); }
+
+.sub_head {
+    margin: 3.5rem 0 0.8rem;
+    font-family: var(--font-body);
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 500;
+    color: var(--gold);
+}
+
+/* numbered badge shared by the feature tiles and history cards */
+.item_num {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.6rem;
+    padding: 0 0.6rem;
+    border: 1px solid rgba(230, 193, 120, 0.6);
+    border-radius: 999px;
+    background: rgba(230, 193, 120, 0.08);
+    box-shadow: 0 0 16px rgba(230, 193, 120, 0.25);
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    transition: background 0.4s, color 0.4s, transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.glass_card:hover .item_num { background: var(--gold); color: #1a0833; transform: scale(1.15); }
+
+.glass_card h3 { margin: 0.3rem 0; font-family: var(--font-body); font-size: 1.8rem; font-weight: 500; color: var(--parchment); }
+.glass_card p { color: var(--muted); }
+
+
+/* ---------- The Site Section ---------- */
+.feature_grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+    margin-top: 2.5rem;
+}
+
+.feature_tile { display: block; text-decoration: none; }
+.feature_tile--soon { opacity: 0.7; }
+
+
+/* ---------- Why Tarot Section ---------- */
+.pull_quote {
+    position: relative;
+    max-width: 44rem;
+    margin: 0 0 2.5rem;
+    padding: 0.5rem 0 0.5rem 2rem;
+    border-left: 2px solid var(--gold);
+    font-family: var(--font-body);
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--parchment);
+    text-shadow: 0 0 22px rgba(155, 93, 229, 0.35);
+}
+
+.pull_quote::before {
+    content: '✦';
+    position: absolute;
+    left: -0.62rem;
+    top: -0.9rem;
+    font-size: 1.1rem;
+    font-style: normal;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(230, 193, 120, 0.9);
+    background: var(--void);
+}
+
+
+/* ---------- The Deck Section ---------- */
+
+/* ---------- The Deck: History ---------- */
+.history_grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+    margin-top: 2.5rem;
+}
+
+/* ---------- The Deck: Elemental Kingdoms ---------- */
+.symbolism_grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.symbolism_grid .glass_card { padding: 1.8rem 1.1rem 1.6rem; }
+
+.suit_box { --tint: var(--gold); text-align: center; border-top-color: var(--tint); }
+.suit_wands  { --tint: #ff8a4c; }
+.suit_cups   { --tint: #6cb6ff; }
+.suit_swords { --tint: #cfd8ff; }
+.suit_pents  { --tint: #7fd49a; }
+
+.suit_glyph {
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    margin: 0 auto 0.8rem;
+    border: 1px solid var(--tint);
+    border-radius: 50%;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--tint);
+    text-shadow: 0 0 12px var(--tint);
+    background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.12), transparent 70%);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--tint) 35%, transparent);
+    animation: twinkle 3.2s ease-in-out infinite alternate;
+}
+
+.suit_box strong {
+    display: block;
+    margin: 0.2rem 0 0.7rem;
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--tint);
+}
+
+.suit_box:hover {
+    border-color: var(--tint);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 44px rgba(0, 0, 0, 0.55),
+                0 0 30px color-mix(in srgb, var(--tint) 40%, transparent);
+}
+
+
+/* ---------- The Creator ---------- */
+.creator {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.75rem, 5vw, 4rem);
+    align-items: center;
+}
+
+/* A Tarot Card with an Initial */
+.creator_card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 210px;
+    height: 340px;
+    padding: 1.1rem 0.6rem;
+    border: 2px solid var(--gold-deep);
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at 50% 45%, rgba(155, 93, 229, 0.25), transparent 55%),
+        linear-gradient(170deg, #f6ecd6, #e5d3a8);
+    box-shadow:
+        inset 0 0 0 6px #f6ecd6,
+        inset 0 0 0 7px var(--gold-deep),
+        0 20px 40px rgba(0, 0, 0, 0.55),
+        0 0 36px rgba(230, 193, 120, 0.25);
+    color: #3b1f0c;
+    font-family: var(--font-head);
+    transform: rotate(-4deg);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s;
+}
+
+.creator_card:hover {
+    transform: rotate(0deg) translateY(-6px);
+    box-shadow:
+        inset 0 0 0 6px #f6ecd6,
+        inset 0 0 0 7px var(--gold-deep),
+        0 26px 46px rgba(0, 0, 0, 0.6),
+        0 0 50px rgba(230, 193, 120, 0.5);
+}
+
+.creator_numeral { font-size: 0.9rem; letter-spacing: 0.2em; }
+
+.creator_sigil {
+    font-family: var(--font-display);
+    font-size: 5.5rem;
+    line-height: 1;
+    color: var(--violet);
+    text-shadow: 0 0 18px rgba(107, 47, 179, 0.4);
+}
+
+.creator_moon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-shadow: 8px -2px 0 0 #6b2fb3;
+    transform: translateX(-4px);
+}
+
+.creator_card figcaption { font-size: 0.8rem; letter-spacing: 0.22em; text-transform: uppercase; }
+
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .symbolism_grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
+    .feature_grid,
+    .history_grid { grid-template-columns: 1fr; }
+    .creator { grid-template-columns: 1fr; justify-items: center; }
+    .tech_flow { flex-direction: column; }
+    .flow_arrow { transform: rotate(90deg); }
+}
+
+@media (max-width: 480px) {
+    .symbolism_grid { grid-template-columns: 1fr; }
+}
