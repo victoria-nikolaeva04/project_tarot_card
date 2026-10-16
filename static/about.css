@@ -125,7 +125,7 @@
     font-family: var(--font-body);
     font-size: clamp(1.8rem, 3.6vw, 2.6rem);
     font-style: italic;
-    line-height: 1.25;
+    line-height: 1.15;
     color: var(--parchment);
     text-shadow: 0 0 22px rgba(155, 93, 229, 0.35);
 }
@@ -133,18 +133,16 @@
 .pull_quote::before {
     content: '✦';
     position: absolute;
-    left: -0.62rem;
+    left: -0.51rem;
     top: -0.9rem;
     font-size: 1.1rem;
     font-style: normal;
     color: var(--gold);
     text-shadow: 0 0 10px rgba(230, 193, 120, 0.9);
-    background: var(--void);
 }
 
 
 /* ---------- The Deck Section ---------- */
-
 /* ---------- The Deck: History ---------- */
 .history_grid {
     display: grid;
@@ -201,70 +199,6 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 44px rgba(0, 0, 0, 0.55),
                 0 0 30px color-mix(in srgb, var(--tint) 40%, transparent);
 }
-
-
-/* ---------- The Creator ---------- */
-.creator {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: clamp(1.75rem, 5vw, 4rem);
-    align-items: center;
-}
-
-/* A Tarot Card with an Initial */
-.creator_card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    width: 210px;
-    height: 340px;
-    padding: 1.1rem 0.6rem;
-    border: 2px solid var(--gold-deep);
-    border-radius: 14px;
-    background:
-        radial-gradient(circle at 50% 45%, rgba(155, 93, 229, 0.25), transparent 55%),
-        linear-gradient(170deg, #f6ecd6, #e5d3a8);
-    box-shadow:
-        inset 0 0 0 6px #f6ecd6,
-        inset 0 0 0 7px var(--gold-deep),
-        0 20px 40px rgba(0, 0, 0, 0.55),
-        0 0 36px rgba(230, 193, 120, 0.25);
-    color: #3b1f0c;
-    font-family: var(--font-head);
-    transform: rotate(-4deg);
-    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s;
-}
-
-.creator_card:hover {
-    transform: rotate(0deg) translateY(-6px);
-    box-shadow:
-        inset 0 0 0 6px #f6ecd6,
-        inset 0 0 0 7px var(--gold-deep),
-        0 26px 46px rgba(0, 0, 0, 0.6),
-        0 0 50px rgba(230, 193, 120, 0.5);
-}
-
-.creator_numeral { font-size: 0.9rem; letter-spacing: 0.2em; }
-
-.creator_sigil {
-    font-family: var(--font-display);
-    font-size: 5.5rem;
-    line-height: 1;
-    color: var(--violet);
-    text-shadow: 0 0 18px rgba(107, 47, 179, 0.4);
-}
-
-.creator_moon {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    box-shadow: 8px -2px 0 0 #6b2fb3;
-    transform: translateX(-4px);
-}
-
-.creator_card figcaption { font-size: 0.8rem; letter-spacing: 0.22em; text-transform: uppercase; }
 
 
 /* ---------- Responsive ---------- */

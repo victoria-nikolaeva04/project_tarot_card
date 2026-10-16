@@ -1762,7 +1762,7 @@ section[id] { scroll-margin-top: 90px; }
 .footer_col a:hover,
 .footer_col a:focus-visible { color: var(--gold); background-size: 100% 1px; }
 
-.footer_disclaimer,
+.footer_col,
 .footer_copy {
     max-width: 1000px;
     margin: 0 auto;
