@@ -22,6 +22,10 @@ number_rank = {
     "Eight": 8, "Nine": 9, "Ten": 10, "Page": 11, "Knight": 12, "Queen": 13, "King": 14,
     }
 
+# Cards without an astrological association would otherwise show "nan"
+df["zodiac_sign"] = df["zodiac_sign"].fillna("No Sign")
+
+
 def get_image_filename(card_name):
     # Minor Arcana: "Ace of Cups" -> "Cups01.jpg"
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
