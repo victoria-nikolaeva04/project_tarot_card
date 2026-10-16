@@ -2,66 +2,151 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tarot Card Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcana Noctis · Tarot Card Reader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <!-- Night sky + velvet drapery backdrop -->
+    <div class="sky" aria-hidden="true">
+        <div class="velvet"></div>
+        <div class="stars stars--small"></div>
+        <div class="stars stars--large"></div>
+    </div>
+
     <nav class="nav_bar">
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('reading') }}">Daily Reading</a>
-        <a href="{{ url_for('guide') }}">Arcana Guide</a>
-        <a href="{{ url_for('about') }}">About</a>
+        <a class="nav_brand" href="{{ url_for('home') }}">☾ Arcana Noctis</a>
+        <div class="nav_links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('reading') }}">Daily Reading</a>
+            <a href="{{ url_for('guide') }}">Arcana Guide</a>
+            <a href="{{ url_for('about') }}">About</a>
+        </div>
     </nav>
 
     <!-- Hero Showcase Region -->
     <header class="hero_section">
         <div class="hero_content">
-            <span class="hero_subtitle">Ancient Wisdom Meets Modern Architecture</span>
-            <h1>Unlock the Dataset of the Human Psyche</h1>
-            <p>Explore the Rider-Waite-Smith Tarot system through dynamic card queries, elemental breakdowns, and algorithmic insights.</p>
+            <span class="hero_subtitle">Whispers from the Velvet Dark</span>
+            <h1>Let the Cards Illuminate Your Path</h1>
+            <p>Light a candle, quiet the mind, and step into the Rider-Waite-Smith tarot. Seventy-eight cards of archetype and omen are waiting to reveal what lies within, and what lies ahead.</p>
             <div class="hero_buttons">
-                <a href="{{ url_for('reading') }}" class="btn btn_primary">Draw Your Daily Cards</a>
-                <a href="#explore-explorer" class="btn btn_secondary">Explore Card Database</a>
+                <a href="{{ url_for('reading') }}" class="btn btn_primary"><span class="btn_glyph">✦</span> Draw Your Daily Cards</a>
+                <a href="#explore-explorer" class="btn btn_secondary">Explore the Arcana</a>
             </div>
+        </div>
+
+        <!-- Decorative candlelit altar (pure CSS) -->
+        <div class="altar" aria-hidden="true">
+            <div class="altar_glow"></div>
+            <div class="altar_moon"></div>
+            <span class="altar_star" style="--x:70%; --y:6%;  --d:0s">✦</span>
+            <span class="altar_star" style="--x:88%; --y:22%; --d:1.2s">✧</span>
+            <span class="altar_star" style="--x:38%; --y:2%;  --d:2.1s">✧</span>
+            <span class="altar_star" style="--x:6%;  --y:34%; --d:.6s">✦</span>
+
+            <div class="candle candle--tall" style="--w:28px; --h:170px; --dur:2.1s; --delay:-.4s; left:20px; bottom:40px;">
+                <div class="candle_glow"></div>
+                <div class="flame"></div>
+                <div class="wick"></div>
+                <div class="wax"></div>
+            </div>
+            <div class="candle candle--pillar" style="--w:50px; --h:84px; --dur:1.7s; --delay:-1.1s; left:68px; bottom:18px;">
+                <div class="candle_glow"></div>
+                <div class="flame"></div>
+                <div class="wick"></div>
+                <div class="wax"><span class="wax_moon"></span></div>
+            </div>
+            <div class="candle candle--right" style="--w:38px; --h:120px; --dur:2.4s; --delay:-.9s; left:338px; bottom:46px;">
+                <div class="candle_glow"></div>
+                <div class="flame"></div>
+                <div class="wick"></div>
+                <div class="wax"><span class="wax_moon"></span></div>
+            </div>
+
+            <div class="crystal_ball">
+                <div class="ball_stand"></div>
+                <div class="ball">
+                    <div class="ball_mist"></div>
+                    <div class="ball_mist ball_mist--2"></div>
+                    <div class="ball_shine"></div>
+                </div>
+            </div>
+
+            <div class="incense">
+                <div class="incense_stick"></div>
+                <div class="smoke">
+                    <span style="--i:0"></span><span style="--i:1"></span>
+                    <span style="--i:2"></span><span style="--i:3"></span>
+                    <span style="--i:4"></span><span style="--i:5"></span>
+                    <span style="--i:6"></span><span style="--i:7"></span>
+                </div>
+                <div class="incense_holder"></div>
+            </div>
+
+            <div class="book">
+                <div class="page page--left"></div>
+                <div class="page page--right"><div class="zodiac"></div></div>
+            </div>
+
+            <div class="gem gem--amethyst"></div>
+            <div class="gem gem--quartz"></div>
         </div>
     </header>
 
     <div class="container">
-        
-        <!-- Two-Column Interactive Layout Dashboard -->
+
+        <div class="divider" aria-hidden="true"><span>☽ ✦ ☾</span></div>
+
+        <!-- Two-Column Interactive Layout -->
         <section id="explore-explorer" class="dashboard_split_layout">
-            <!-- Left Column: Context Details -->
             <div class="layout_text_panel">
-                <h2>The Interactive Arcana Engine</h2>
-                <p>Our dashboard lets you seamlessly map out the 78 structural nodes of the tarot. By integrating the historic 1910 archetypes with high-speed web queries, you can view the cards like never before.</p>
-                <p>Filter by elemental properties, trace zodiac links, or dig straight into the software mechanics driving the readings behind the scenes.</p>
-                
+                <h2>The Living Arcana</h2>
+                <p>Wander through all seventy-eight cards of the tarot, from the Fool's first step to the World's final dance. Each card carries the imagery Pamela Colman Smith painted in 1909, alongside its upright and reversed meanings.</p>
+                <p>Sort the deck by element, follow the threads that bind each card to the stars and planets, or simply pull a card at random and see what it stirs in you.</p>
+
                 <div class="quick_stats_badge">
-                    <strong>78 Nodes</strong> Monitored System-Wide
+                    <strong>78 Cards</strong> · 22 Major · 56 Minor
+                </div>
+            </div>
+
+            <div class="card_fan" aria-hidden="true">
+                <div class="tarot_card tarot_card--back"><span class="card_sigil">✶</span></div>
+                <div class="tarot_card tarot_card--back"><span class="card_sigil">✶</span></div>
+                <div class="tarot_card tarot_card--face">
+                    <span class="card_numeral">XVIII</span>
+                    <span class="card_moon"></span>
+                    <span class="card_name">The Moon</span>
                 </div>
             </div>
         </section>
 
-        <!-- Feature Grid Highlights -->
+        <!-- Feature Highlights -->
         <section class="features_section">
             <div class="feature_card">
                 <div class="feature_icon">✦</div>
                 <h3>Daily Divination</h3>
-                <p>Draw algorithmic spreads to isolate career paths, emotional balances, and foundational milestones.</p>
+                <p>Draw a spread each morning to shed light on your work, your heart, and the ground beneath your feet.</p>
             </div>
             <div class="feature_card">
-                <div class="feature_icon">⚛</div>
-                <h3>Elemental Arrays</h3>
-                <p>Analyze how datasets map across the cardinal kingdoms: Wands, Cups, Swords, and Pentacles.</p>
+                <div class="feature_icon">🜂</div>
+                <h3>Elemental Mysteries</h3>
+                <p>Discover how fire, water, air and earth flow through the four suits: Wands, Cups, Swords and Pentacles.</p>
             </div>
             <div class="feature_card">
-                <div class="feature_icon">⚙</div>
-                <h3>Zero Latency</h3>
-                <p>Engineered via client-side DOM filters allowing full vector updates in under 1 millisecond.</p>
+                <div class="feature_icon">☾</div>
+                <h3>Swift as Starlight</h3>
+                <p>Cards shuffle and reveal themselves instantly, so nothing stands between you and the message.</p>
             </div>
         </section>
 
     </div>
 
+    <footer class="site_footer">
+        <p>✦ Arcana Noctis · The cards reflect, they do not decide ✦</p>
+    </footer>
 </body>
 </html>
