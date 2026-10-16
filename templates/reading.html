@@ -13,7 +13,40 @@
         <a href="{{ url_for('about') }}">About</a>
     </nav>
 
-    <h1>Reading</h1>
-    <p></p>
+    <div class="container">
+        <h1>Reading</h1>
+
+        <!-- Step 1: pick three cards -->
+        <section id="pick_section">
+            <p id="pick_status" class="pick_status">Choose 3 cards that call to you (0/3)</p>
+
+            <div class="pick_controls">
+                <button type="button" id="reveal_btn" class="draw-btn" disabled>Flip My Cards</button>
+                <button type="button" id="reset_btn" class="flip_btn">Start Over</button>
+            </div>
+
+            <div class="deck_grid" id="deck_grid">
+                {% for card in tarot_cards %}
+                <button type="button" class="deck_card"
+                        data-name="{{ card.card_name }}"
+                        data-arcana="{{ card.arcana }}"
+                        data-image="{{ url_for('static', filename='images/cards/' + card.image_file) }}"
+                        data-upright="{{ card.upright_meaning }}"
+                        data-reversed="{{ card.reversed_meaning }}"
+                        aria-label="Face-down tarot card">
+                    <img src="{{ url_for('static', filename='images/cards/Cover_Rare.jpg') }}" alt="Face-down tarot card">
+                </button>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Step 2: revealed spread -->
+        <section id="result_section" hidden>
+            <div class="result_grid" id="result_grid"></div>
+            <button type="button" id="again_btn" class="draw-btn">Draw Again</button>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='reading.js') }}"></script>
 </body>
 </html>
