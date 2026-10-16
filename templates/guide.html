@@ -80,7 +80,14 @@
                      data_suit="{{ card.suit | lower if card.suit else '' }}"
                      data_element="{{ card.element | lower if card.element else 'none' }}"
                      data_sign="{{ card.zodiac_sign | lower if card.zodiac_sign else '' }}"
-                     data_meanings="{{ card.upright_meaning | lower }} {{ card.reversed_meaning | lower }} {{ card.love_meaning | lower }} {{ card.career_meaning | lower }}">
+                     data_meanings="{{ card.upright_meaning | lower }} {{ card.reversed_meaning | lower }} {{ card.love_meaning | lower }} {{ card.career_meaning | lower }}"
+                     data_title="{{ card.card_name }}"
+                     data_zodiac="{{ card.zodiac_sign if card.zodiac_sign else '' }}"
+                     data_upright="{{ card.upright_meaning }}"
+                     data_reversed="{{ card.reversed_meaning }}"
+                     data_love="{{ card.love_meaning }}"
+                     data_career="{{ card.career_meaning }}"
+                     tabindex="0" role="button" aria-haspopup="dialog" aria-label="Open {{ card.card_name }} meanings">
 
                     <img class="card_img"
                          src="{{ url_for('static', filename='images/cards/' + card.image_file) }}"
@@ -161,6 +168,48 @@
         </div>
         <p class="footer_copy">✦ The cards reflect, they do not decide ✦</p>
     </footer>
+
+    <!-- Card detail pop-up -->
+    <div class="card_modal" id="card_modal" hidden>
+        <div class="modal_backdrop" data-close></div>
+        <div class="modal_panel" role="dialog" aria-modal="true" aria-labelledby="modal_title">
+            <div class="modal_mist" aria-hidden="true"></div>
+            <div class="modal_sparkles" id="modal_sparkles" aria-hidden="true"></div>
+            <button type="button" class="modal_close" data-close aria-label="Close">✕</button>
+
+            <div class="modal_left">
+                <img class="modal_img" id="modal_img" src="" alt="">
+                <div class="modal_controls">
+                    <span class="badge" id="modal_badge"></span>
+                    <span class="badge badge_zodiac" id="modal_zodiac"></span>
+                </div>
+            </div>
+
+            <div class="modal_right">
+                <span class="arcana_type" id="modal_arcana"></span>
+                <h2 id="modal_title"></h2>
+
+                <div class="modal_meanings">
+                    <div class="modal_block block_upright">
+                        <h3><span class="block_icon" aria-hidden="true">▲</span> Upright</h3>
+                        <p id="modal_upright"></p>
+                    </div>
+                    <div class="modal_block block_reversed">
+                        <h3><span class="block_icon" aria-hidden="true">▼</span> Reversed</h3>
+                        <p id="modal_reversed"></p>
+                    </div>
+                    <div class="modal_block block_love">
+                        <h3><span class="block_icon" aria-hidden="true">♥</span> Love</h3>
+                        <p id="modal_love"></p>
+                    </div>
+                    <div class="modal_block block_career">
+                        <h3><span class="block_icon" aria-hidden="true">✦</span> Career</h3>
+                        <p id="modal_career"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='site.js') }}"></script>
     <!-- Filter/Searchbar JS Script -->
