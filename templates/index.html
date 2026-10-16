@@ -13,8 +13,55 @@
         <a href="{{ url_for('about') }}">About</a>
     </nav>
 
-    <h1>Landing Page</h1>
-    <p></p>
+    <!-- Hero Showcase Region -->
+    <header class="hero_section">
+        <div class="hero_content">
+            <span class="hero_subtitle">Ancient Wisdom Meets Modern Architecture</span>
+            <h1>Unlock the Dataset of the Human Psyche</h1>
+            <p>Explore the Rider-Waite-Smith Tarot system through dynamic card queries, elemental breakdowns, and algorithmic insights.</p>
+            <div class="hero_buttons">
+                <a href="{{ url_for('reading') }}" class="btn btn_primary">Draw Your Daily Cards</a>
+                <a href="#explore-explorer" class="btn btn_secondary">Explore Card Database</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Two-Column Interactive Layout Dashboard -->
+        <section id="explore-explorer" class="dashboard_split_layout">
+            <!-- Left Column: Context Details -->
+            <div class="layout_text_panel">
+                <h2>The Interactive Arcana Engine</h2>
+                <p>Our dashboard lets you seamlessly map out the 78 structural nodes of the tarot. By integrating the historic 1910 archetypes with high-speed web queries, you can view the cards like never before.</p>
+                <p>Filter by elemental properties, trace zodiac links, or dig straight into the software mechanics driving the readings behind the scenes.</p>
+                
+                <div class="quick_stats_badge">
+                    <strong>78 Nodes</strong> Monitored System-Wide
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Grid Highlights -->
+        <section class="features_section">
+            <div class="feature_card">
+                <div class="feature_icon">✦</div>
+                <h3>Daily Divination</h3>
+                <p>Draw algorithmic spreads to isolate career paths, emotional balances, and foundational milestones.</p>
+            </div>
+            <div class="feature_card">
+                <div class="feature_icon">⚛</div>
+                <h3>Elemental Arrays</h3>
+                <p>Analyze how datasets map across the cardinal kingdoms: Wands, Cups, Swords, and Pentacles.</p>
+            </div>
+            <div class="feature_card">
+                <div class="feature_icon">⚙</div>
+                <h3>Zero Latency</h3>
+                <p>Engineered via client-side DOM filters allowing full vector updates in under 1 millisecond.</p>
+            </div>
+        </section>
+
+    </div>
 
 </body>
 </html>
