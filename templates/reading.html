@@ -56,12 +56,16 @@
         <div class="reading_section">
             <!-- Step 1: pick three cards -->
             <section id="pick_section" aria-label="Choose your cards">
+                <!-- Display mode, kept apart from the reading actions below -->
+                <div class="mode_row">
+                    <button type="button" id="whimsy_btn" class="whimsy_btn" aria-pressed="false">✦ Whimsy</button>
+                </div>
+
                 <p id="pick_status" class="pick_status" aria-live="polite">Choose 3 cards that call to you (0/3)</p>
 
                 <div class="pick_controls">
                     <button type="button" id="reveal_btn" class="draw-btn" disabled>Flip My Cards</button>
                     <button type="button" id="reset_btn" class="flip_btn">Start Over</button>
-                    <button type="button" id="whimsy_btn" class="flip_btn whimsy_btn" aria-pressed="false">✦ Whimsy</button>
                 </div>
 
                 <div class="deck_grid" id="deck_grid">

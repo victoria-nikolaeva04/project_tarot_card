@@ -221,12 +221,42 @@ body:has(.reading) {
 
 
 /* ---------- Whimsy mode: arch + shadow spots ---------- */
+/* the mode switch floats in the top-right corner, out of the flow so it never shifts the layout */
+#pick_section { position: relative; }
+
+.mode_row {
+    position: absolute;
+    top: -2.3rem;
+    right: 0;
+    transition: opacity 0.8s var(--ease-soft), visibility 0s;
+}
+
 .whimsy_btn {
-    padding: 0.5rem 1.1rem;
-    font-size: 0.68rem;
+    padding: 0.45rem 1.1rem;
+    border: 1px dashed rgba(212, 184, 255, 0.55);
+    border-radius: 999px;
+    background: transparent;
+    font-family: var(--font-head);
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--lilac);
+    cursor: pointer;
+    transition: background 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out), border-color 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.whimsy_btn:hover {
+    background: rgba(155, 93, 229, 0.2);
+    box-shadow: 0 0 18px rgba(155, 93, 229, 0.45);
+}
+
+.whimsy_btn:focus-visible {
+    outline: 2px solid var(--lilac);
+    outline-offset: 4px;
 }
 
 .whimsy_btn[aria-pressed="true"] {
+    border-style: solid;
     border-color: var(--lilac);
     background: rgba(155, 93, 229, 0.35);
     box-shadow: 0 0 18px rgba(155, 93, 229, 0.55);
@@ -413,6 +443,13 @@ body:has(.reading) {
 .pick_controls {
     max-height: 8rem;
     transition: max-height 1.2s var(--ease-soft), margin 1.2s var(--ease-soft), opacity 0.8s var(--ease-soft);
+}
+
+#pick_section.revealing .mode_row {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.8s var(--ease-soft), visibility 0s 0.8s;
 }
 
 #pick_section.revealing .pick_controls {
