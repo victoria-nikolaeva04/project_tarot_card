@@ -23,6 +23,17 @@ function shuffle_deck() {
     cards.forEach(card => deck_grid.appendChild(card));
 }
 
+// Deal the deck in row by row
+function deal_rows() {
+    const columns = getComputedStyle(deck_grid).gridTemplateColumns.split(' ').length;
+    Array.from(deck_grid.children).forEach((card, i) => {
+        card.style.setProperty('--row', Math.floor(i / columns));
+    });
+    deck_grid.classList.remove('dealing');
+    void deck_grid.offsetWidth; // restart the animation
+    deck_grid.classList.add('dealing');
+}
+
 function update_status() {
     pick_status.textContent = picked.length === MAX_PICKS
         ? 'Your 3 cards are chosen. Flip them when you are ready.'
@@ -106,6 +117,7 @@ function reset() {
     update_status();
     result_section.hidden = true;
     pick_section.hidden = false;
+    deal_rows();
     window.scrollTo({ top: 0 });
 }
 
@@ -114,3 +126,4 @@ again_btn.addEventListener('click', reset);
 
 shuffle_deck();
 update_status();
+deal_rows();

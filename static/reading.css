@@ -179,6 +179,16 @@ body:has(.reading) .nav_bar { margin-bottom: 0; }
     transform: translateY(-10px);
 }
 
+/* Cards drop in one row at a time */
+.deck_grid.dealing .deck_card {
+    animation: deal-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--row, 0) * 110ms);
+}
+
+@keyframes deal-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.92); }
+}
+
 /* Once 3 are picked, dim the rest of the deck */
 .deck_full .deck_card:not(.selected) {
     opacity: 0.35;
@@ -303,4 +313,5 @@ body:has(.reading) .nav_bar { margin-bottom: 0; }
 
 @media (prefers-reduced-motion: reduce) {
     .result_card { animation-duration: 0.01s; }
+    .deck_grid.dealing .deck_card { animation: none; }
 }
