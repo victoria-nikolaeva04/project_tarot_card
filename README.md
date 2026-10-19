@@ -1,4 +1,4 @@
-# Mini Project - Tarot Card Reader
+# Project - Tarot Card Reader
 A tarot card reader/dictionary for the whimsical people
 
 ## Day 1
@@ -14,6 +14,14 @@ A tarot card reader/dictionary for the whimsical people
  - Added a way to see the reverse meanings of the card
  - Build the foundation of the 3-card reading
  - Added basic 'content' to About + Landing Page (may change/move content later)
+
+## Day 3
+- Added Styling to Home, About, and Guide Pages
+- Added pop-up overlay to show each card's meaning in Guide Page
+- Fix minor bugs all over the appilcation
+
+## Day 4
+
 
 ## Use of AI
 Used AI as an additional tool for debugging and building basic 'content' (for example - text within the 'About' page)
