@@ -61,6 +61,7 @@
                 <div class="pick_controls">
                     <button type="button" id="reveal_btn" class="draw-btn" disabled>Flip My Cards</button>
                     <button type="button" id="reset_btn" class="flip_btn">Start Over</button>
+                    <button type="button" id="whimsy_btn" class="flip_btn whimsy_btn" aria-pressed="false">✦ Whimsy</button>
                 </div>
 
                 <div class="deck_grid" id="deck_grid">
@@ -75,6 +76,28 @@
                         <img src="{{ url_for('static', filename='images/cards/Cover_Rare.jpg') }}" alt="Face-down tarot card">
                     </button>
                     {% endfor %}
+                </div>
+
+                <!-- Whimsy mode: three shadowy spots the chosen cards travel into -->
+                <div class="slots" id="slots" hidden>
+                    <div class="slot">
+                        <span class="position_badge past">Past</span>
+                        <div class="slot_well"></div>
+                        <div class="slot_caption" aria-live="polite"></div>
+                    </div>
+                    <div class="slot">
+                        <span class="position_badge present">Present</span>
+                        <div class="slot_well"></div>
+                        <div class="slot_caption" aria-live="polite"></div>
+                    </div>
+                    <div class="slot">
+                        <span class="position_badge future">Future</span>
+                        <div class="slot_well"></div>
+                        <div class="slot_caption" aria-live="polite"></div>
+                    </div>
+                </div>
+                <div class="result_actions" id="slots_actions" hidden>
+                    <button type="button" id="slots_again_btn" class="draw-btn">Draw Again</button>
                 </div>
             </section>
 

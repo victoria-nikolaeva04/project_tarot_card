@@ -1,6 +1,8 @@
 // Variables
 const MAX_PICKS = 3;
 const POSITIONS = ['Past', 'Present', 'Future'];
+const ARCH_HALF_SPAN = 72;  // degrees either side of the top of the arch
+const CARD_RATIO = 1.73;    // card height / width
 
 const deck_grid = document.getElementById('deck_grid');
 const pick_section = document.getElementById('pick_section');
@@ -10,8 +12,21 @@ const pick_status = document.getElementById('pick_status');
 const reveal_btn = document.getElementById('reveal_btn');
 const reset_btn = document.getElementById('reset_btn');
 const again_btn = document.getElementById('again_btn');
+const whimsy_btn = document.getElementById('whimsy_btn');
+const slots_wrap = document.getElementById('slots');
+const slots = Array.from(slots_wrap.querySelectorAll('.slot'));
+const slots_actions = document.getElementById('slots_actions');
+const slots_again_btn = document.getElementById('slots_again_btn');
 
-let picked = [];
+const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, reduce_motion ? 0 : ms));
+const cover_src = deck_grid.querySelector('img').src;
+
+let picked = [];                      // classic mode picks
+let whimsy = false;                   // arch + shadow spots mode
+let slot_cards = [null, null, null];  // whimsy mode: the card in each spot
+let locked = false;                   // whimsy mode: the reveal has started
+let run_id = 0;                       // cancels a reveal that is still playing after a reset
 
 // Randomize the Deck
 function shuffle_deck() {
@@ -23,18 +38,90 @@ function shuffle_deck() {
     cards.forEach(card => deck_grid.appendChild(card));
 }
 
-// Deal the deck in row by row
-function deal_rows() {
-    const columns = getComputedStyle(deck_grid).gridTemplateColumns.split(' ').length;
-    Array.from(deck_grid.children).forEach((card, i) => {
-        card.style.setProperty('--row', Math.floor(i / columns));
+// Classic layout: the deck is dealt in row by row
+function clear_arch() {
+    deck_grid.classList.remove('arch');
+    deck_grid.style.height = '';
+    deck_grid.style.removeProperty('--cw');
+    Array.from(deck_grid.children).forEach(card => {
+        ['--a', '--o', '--i'].forEach(p => card.style.removeProperty(p));
+        card.style.top = '';
+        card.style.zIndex = '';
     });
+}
+
+// Whimsy layout: the deck fans out in an arch (extra rows on narrow screens)
+function layout_arch() {
+    const cards = Array.from(deck_grid.children);
+    const n = cards.length;
+    deck_grid.classList.add('arch');
+
+    const W = deck_grid.clientWidth;
+    const rows = W < 560 ? 3 : W < 900 ? 2 : 1;
+    const A = ARCH_HALF_SPAN * Math.PI / 180;
+
+    let cw = 70, R = 0;
+    for (let k = 0; k < 2; k++) {
+        R = Math.min(640, (W / 2 - cw * 0.6) / Math.sin(A));
+        cw = Math.max(50, Math.min(92, R * 0.15));
+    }
+    const ch = cw * CARD_RATIO;
+    const gap = ch * 0.5;
+    const TOP = 36;
+
+    const radii = Array.from({ length: rows }, (_, r) => R - r * gap);
+    const total = radii.reduce((a, b) => a + b, 0);
+    const counts = radii.map(r => Math.round(n * r / total));
+    counts[0] += n - counts.reduce((a, b) => a + b, 0);
+
+    let i = 0;
+    counts.forEach((count, r) => {
+        for (let j = 0; j < count; j++, i++) {
+            const t = count > 1 ? j / (count - 1) : 0.5;
+            const angle = -ARCH_HALF_SPAN + 2 * ARCH_HALF_SPAN * t;
+            const card = cards[i];
+            card.style.setProperty('--a', angle.toFixed(2) + 'deg');
+            card.style.setProperty('--o', (R - r * gap).toFixed(1) + 'px');
+            card.style.setProperty('--i', i);
+            card.style.top = (TOP + r * gap) + 'px';
+            card.style.zIndex = r * 100 + j;
+        }
+    });
+
+    let height = 0;
+    radii.forEach((radius, r) => {
+        const edge = TOP + R - (radius - ch) * Math.cos(A) + (cw / 2) * Math.sin(A);
+        const middle = TOP + r * gap + ch;
+        height = Math.max(height, edge, middle);
+    });
+    deck_grid.style.setProperty('--cw', cw.toFixed(1) + 'px');
+    deck_grid.style.height = (height + 24) + 'px';
+}
+
+function layout() {
+    if (whimsy) {
+        layout_arch();
+    } else {
+        clear_arch();
+        const columns = getComputedStyle(deck_grid).gridTemplateColumns.split(' ').length;
+        Array.from(deck_grid.children).forEach((card, i) => {
+            card.style.setProperty('--row', Math.floor(i / columns));
+        });
+    }
     deck_grid.classList.remove('dealing');
     void deck_grid.offsetWidth; // restart the animation
     deck_grid.classList.add('dealing');
 }
 
 function update_status() {
+    if (whimsy) {
+        const filled = slot_cards.filter(Boolean).length;
+        pick_status.textContent = filled === MAX_PICKS
+            ? 'The cards are turning...'
+            : `Choose ${MAX_PICKS} cards from the arch (${filled}/${MAX_PICKS})`;
+        deck_grid.classList.remove('deck_full');
+        return;
+    }
     pick_status.textContent = picked.length === MAX_PICKS
         ? 'Your 3 cards are chosen. Flip them when you are ready.'
         : `Choose ${MAX_PICKS} cards that call to you (${picked.length}/${MAX_PICKS})`;
@@ -46,6 +133,11 @@ function update_status() {
 deck_grid.addEventListener('click', event => {
     const card = event.target.closest('.deck_card');
     if (!card) return;
+
+    if (whimsy) {
+        place_card(card);
+        return;
+    }
 
     if (card.classList.contains('selected')) {
         card.classList.remove('selected');
@@ -110,20 +202,185 @@ reveal_btn.addEventListener('click', () => {
     });
 });
 
+
+// ---------- Whimsy mode ----------
+
+// A picked card flies from the arch into the first empty shadow spot
+function place_card(card) {
+    const index = slot_cards.indexOf(null);
+    if (locked || index === -1 || card.classList.contains('placed')) return;
+
+    const slot = slots[index];
+    const well = slot.querySelector('.slot_well');
+    const is_reversed = Math.random() < 0.25;
+    slot.dataset.reversed = is_reversed ? '1' : '';
+    slot_cards[index] = card;
+    card.classList.add('placed');
+    update_status();
+
+    const land = () => {
+        fill_slot(slot, card);
+        if (slots.every(s => s.classList.contains('filled'))) begin_reveal();
+    };
+    if (reduce_motion) { land(); return; }
+
+    const from = card.getBoundingClientRect();
+    const to = well.getBoundingClientRect();
+    const w = card.offsetWidth, h = card.offsetHeight;
+    const angle = parseFloat(card.style.getPropertyValue('--a')) || 0;
+    const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+    const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+
+    const fly = document.createElement('img');
+    fly.className = 'fly_card';
+    fly.src = cover_src;
+    fly.alt = '';
+    fly.style.width = w + 'px';
+    fly.style.height = h + 'px';
+    fly.style.left = (from.left + from.width / 2 - w / 2) + 'px';
+    fly.style.top = (from.top + from.height / 2 - h / 2) + 'px';
+    document.body.appendChild(fly);
+
+    fly.animate([
+        { transform: `rotate(${angle}deg) scale(1)` },
+        { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${to.width / w})` }
+    ], { duration: 750, easing: 'cubic-bezier(0.3, 0.7, 0.2, 1)', fill: 'forwards' })
+        .finished.then(() => { fly.remove(); land(); })
+        .catch(() => {}); // the flight is cancelled if the reading is reset mid-air
+}
+
+// Put a face-down card in the spot, ready to flip
+function fill_slot(slot, card) {
+    const well = slot.querySelector('.slot_well');
+    const d = card.dataset;
+
+    const back = document.createElement('div');
+    back.className = 'face back';
+    const back_img = document.createElement('img');
+    back_img.src = cover_src;
+    back_img.alt = 'Face-down tarot card';
+    back.appendChild(back_img);
+
+    const front = document.createElement('div');
+    front.className = 'face front';
+    const front_img = document.createElement('img');
+    front_img.src = d.image;
+    front_img.alt = d.name;
+    if (slot.dataset.reversed) front_img.classList.add('inverted');
+    front.appendChild(front_img);
+
+    const flipper = document.createElement('div');
+    flipper.className = 'flipper';
+    flipper.append(back, front);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'slot_remove';
+    remove.textContent = '✕';
+    remove.setAttribute('aria-label', 'Return this card to the deck');
+    remove.addEventListener('click', () => unplace(slot));
+
+    well.append(flipper, remove);
+    slot.classList.add('filled');
+}
+
+function clear_slot(slot) {
+    slot.classList.remove('filled', 'revealed');
+    slot.dataset.reversed = '';
+    slot.querySelector('.slot_well').replaceChildren();
+    slot.querySelector('.slot_caption').replaceChildren();
+}
+
+// Change your mind: send a placed card back to the arch
+function unplace(slot) {
+    if (locked) return;
+    const index = slots.indexOf(slot);
+    slot_cards[index].classList.remove('placed');
+    slot_cards[index] = null;
+    clear_slot(slot);
+    update_status();
+}
+
+// All three spots are full: focus on them and flip the cards one by one
+async function begin_reveal() {
+    if (locked) return;
+    locked = true;
+    const run = run_id;
+    slots.forEach(s => s.querySelector('.slot_remove')?.remove());
+
+    await sleep(500);
+    if (run !== run_id) return;
+    pick_section.classList.add('revealing');
+
+    await sleep(1000);
+    if (run !== run_id) return;
+    slots_wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    await sleep(900);
+    for (let i = 0; i < slots.length; i++) {
+        if (run !== run_id) return;
+        const slot = slots[i];
+        const d = slot_cards[i].dataset;
+        const is_reversed = Boolean(slot.dataset.reversed);
+
+        slot.querySelector('.flipper').classList.add('flipped');
+        await sleep(1100);
+        if (run !== run_id) return;
+
+        const title = document.createElement('h3');
+        title.className = 'card_title';
+        title.textContent = d.name;
+        const label = document.createElement('span');
+        label.className = 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright');
+        label.textContent = is_reversed ? 'Reversed' : 'Upright';
+        slot.querySelector('.slot_caption')
+            .replaceChildren(title, label, key_points(is_reversed ? d.reversed : d.upright));
+        slot.classList.add('revealed');
+        await sleep(900);
+    }
+    if (run !== run_id) return;
+    slots_actions.hidden = false;
+}
+
+whimsy_btn.addEventListener('click', () => {
+    whimsy = !whimsy;
+    whimsy_btn.setAttribute('aria-pressed', whimsy);
+    pick_section.classList.toggle('whimsy_on', whimsy);
+    slots_wrap.hidden = !whimsy;
+    reset();
+});
+
+let resize_timer;
+window.addEventListener('resize', () => {
+    clearTimeout(resize_timer);
+    resize_timer = setTimeout(() => { if (whimsy && !locked) layout_arch(); }, 150);
+});
+
+
 function reset() {
+    run_id++;
+    locked = false;
     picked.forEach(card => card.classList.remove('selected'));
     picked = [];
+    slot_cards = [null, null, null];
+    slots.forEach(clear_slot);
+    Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
+    pick_section.classList.remove('revealing');
+    slots_actions.hidden = true;
+    document.querySelectorAll('.fly_card').forEach(el => el.remove());
+
     shuffle_deck();
     update_status();
     result_section.hidden = true;
     pick_section.hidden = false;
-    deal_rows();
+    layout();
     window.scrollTo({ top: 0 });
 }
 
 reset_btn.addEventListener('click', reset);
 again_btn.addEventListener('click', reset);
+slots_again_btn.addEventListener('click', reset);
 
 shuffle_deck();
 update_status();
-deal_rows();
+layout();

@@ -215,6 +215,201 @@ body:has(.reading) {
 }
 
 
+/* ---------- Whimsy mode: arch + shadow spots ---------- */
+.whimsy_btn {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.68rem;
+}
+
+.whimsy_btn[aria-pressed="true"] {
+    border-color: var(--lilac);
+    background: rgba(155, 93, 229, 0.35);
+    box-shadow: 0 0 18px rgba(155, 93, 229, 0.55);
+}
+
+.whimsy_on #reveal_btn { display: none; }
+
+/* the deck fans out in an arch; --a / --o / top are set per card by reading.js */
+.deck_grid.arch {
+    display: block;
+    position: relative;
+}
+
+.deck_grid.arch .deck_card {
+    position: absolute;
+    left: calc(50% - var(--cw) / 2);
+    width: var(--cw);
+    transform-origin: 50% var(--o);
+    transform: rotate(var(--a));
+}
+
+.deck_grid.arch .deck_card:hover,
+.deck_grid.arch .deck_card:focus-visible {
+    z-index: 1000 !important;
+    transform: rotate(var(--a)) translateY(-26px);
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(230, 193, 120, 0.65), 0 0 55px rgba(155, 93, 229, 0.5);
+}
+
+/* a card that has flown into a spot leaves a gap in the arch */
+.deck_card.placed { visibility: hidden; }
+
+.deck_grid.arch.dealing .deck_card {
+    animation: arch-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 14ms);
+}
+
+@keyframes arch-in {
+    from { opacity: 0; transform: rotate(calc(var(--a) - 14deg)); }
+}
+
+/* three shadowy spots */
+.slots {
+    --sw: clamp(76px, 24vw, 150px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(0.8rem, 5vw, 3.5rem);
+    margin-top: 1.5rem;
+}
+
+.slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--sw);
+    transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.slot .position_badge { margin-bottom: 0.8rem; }
+
+.slot_well {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.73;
+    perspective: 1000px;
+    border: 2px dashed rgba(230, 193, 120, 0.3);
+    border-radius: 12px;
+    background: radial-gradient(ellipse at 50% 35%, rgba(45, 18, 80, 0.35), rgba(5, 2, 11, 0.9) 75%);
+    box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.95), 0 0 26px rgba(107, 47, 179, 0.2);
+    animation: slot-breathe 4s ease-in-out infinite alternate;
+    transition: border-color 0.5s, box-shadow 0.5s;
+}
+
+@keyframes slot-breathe {
+    from { box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.95), 0 0 14px rgba(107, 47, 179, 0.12); }
+    to   { box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.95), 0 0 34px rgba(107, 47, 179, 0.38); }
+}
+
+.slot.filled .slot_well {
+    border-style: solid;
+    border-color: rgba(230, 193, 120, 0.7);
+    background: none;
+    box-shadow: 0 0 26px rgba(230, 193, 120, 0.4), 0 14px 30px rgba(0, 0, 0, 0.5);
+    animation: none;
+}
+
+.flipper {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.flipper.flipped { transform: rotateY(180deg); }
+
+.face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 9px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+.face.front { transform: rotateY(180deg); }
+.face img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.face img.inverted { transform: rotate(180deg); }
+
+.slot_remove {
+    position: absolute;
+    top: -0.7rem;
+    right: -0.7rem;
+    z-index: 3;
+    width: 1.7rem;
+    height: 1.7rem;
+    border: 1px solid rgba(230, 193, 120, 0.6);
+    border-radius: 50%;
+    background: var(--velvet-deep);
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--parchment);
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+.slot_remove:hover { background: var(--gold); color: #1a0833; }
+.slot_remove:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* the card in flight from the arch to its spot */
+.fly_card {
+    position: fixed;
+    z-index: 2000;
+    pointer-events: none;
+    object-fit: cover;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(230, 193, 120, 0.75);
+}
+
+.slot_caption {
+    width: 100%;
+    margin-top: 1rem;
+    text-align: center;
+    opacity: 0;
+    translate: 0 10px;
+    transition: opacity 0.8s, translate 0.8s;
+}
+.slot.revealed .slot_caption { opacity: 1; translate: 0 0; }
+
+.slot_caption .card_title {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-body);
+    font-size: clamp(1.15rem, 3.4vw, 1.7rem);
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--parchment);
+}
+.slot_caption .key_point { font-size: 0.9rem; padding: 0.1rem 0.6rem; }
+
+/* focus shifts to the three spots: the arch folds away */
+#pick_section.revealing .slots { --sw: clamp(104px, 27vw, 230px); }
+
+.pick_controls {
+    max-height: 8rem;
+    transition: max-height 0.8s, margin 0.8s, opacity 0.5s;
+}
+
+#pick_section.revealing .pick_controls {
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#pick_section.revealing .deck_grid {
+    height: 0 !important;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    pointer-events: none;
+    transition: height 0.9s cubic-bezier(0.6, 0, 0.3, 1), opacity 0.6s, visibility 0s 0.9s;
+}
+
+
 /* ---------- Result step ---------- */
 .result_grid {
     display: grid;
@@ -330,5 +525,8 @@ body:has(.reading) {
 
 @media (prefers-reduced-motion: reduce) {
     .result_card { animation-duration: 0.01s; }
-    .deck_grid.dealing .deck_card { animation: none; }
+    .deck_grid.dealing .deck_card,
+    .deck_grid.arch.dealing .deck_card { animation: none; }
+    .flipper, .slot, .slot_caption { transition: none; }
+    .slot_well { animation: none; }
 }
