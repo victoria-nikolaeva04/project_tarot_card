@@ -244,7 +244,7 @@ function place_card(card) {
     fly.animate([
         { transform: `rotate(${angle}deg) scale(1)` },
         { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${to.width / w})` }
-    ], { duration: 750, easing: 'cubic-bezier(0.3, 0.7, 0.2, 1)', fill: 'forwards' })
+    ], { duration: 1100, easing: 'cubic-bezier(0.45, 0.05, 0.2, 1)', fill: 'forwards' })
         .finished.then(() => { fly.remove(); land(); })
         .catch(() => {}); // the flight is cancelled if the reading is reset mid-air
 }
@@ -308,15 +308,15 @@ async function begin_reveal() {
     const run = run_id;
     slots.forEach(s => s.querySelector('.slot_remove')?.remove());
 
-    await sleep(500);
+    await sleep(700);
     if (run !== run_id) return;
     pick_section.classList.add('revealing');
 
-    await sleep(1000);
+    await sleep(900);
     if (run !== run_id) return;
     slots_wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    await sleep(900);
+    await sleep(1400);
     for (let i = 0; i < slots.length; i++) {
         if (run !== run_id) return;
         const slot = slots[i];
@@ -324,7 +324,7 @@ async function begin_reveal() {
         const is_reversed = Boolean(slot.dataset.reversed);
 
         slot.querySelector('.flipper').classList.add('flipped');
-        await sleep(1100);
+        await sleep(1500);
         if (run !== run_id) return;
 
         const title = document.createElement('h3');
@@ -336,10 +336,10 @@ async function begin_reveal() {
         slot.querySelector('.slot_caption')
             .replaceChildren(title, label, key_points(is_reversed ? d.reversed : d.upright));
         slot.classList.add('revealed');
-        await sleep(900);
+        await sleep(1200);
     }
     if (run !== run_id) return;
-    slots_actions.hidden = false;
+    slots_actions.classList.add('show');
 }
 
 whimsy_btn.addEventListener('click', () => {
@@ -366,7 +366,7 @@ function reset() {
     slots.forEach(clear_slot);
     Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
     pick_section.classList.remove('revealing');
-    slots_actions.hidden = true;
+    slots_actions.classList.remove('show');
     document.querySelectorAll('.fly_card').forEach(el => el.remove());
 
     shuffle_deck();
