@@ -7,7 +7,8 @@
     if (h1) {
         var words = h1.textContent.trim().split(/\s+/);
         h1.innerHTML = words.map(function (w, i) {
-            return '<span class="w" style="--w:' + i + '">' + w + '</span>';
+            var glow = /^illuminate$/i.test(w) ? ' glow' : '';
+            return '<span class="w' + glow + '" style="--w:' + i + '">' + w + '</span>';
         }).join(' ');
     }
 
