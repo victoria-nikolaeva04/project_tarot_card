@@ -14,7 +14,24 @@ html:has(.reading) { scrollbar-gutter: stable; }
 body:has(.reading) { margin: 0; }
 body:has(.reading) .nav_bar { margin-bottom: 0; }
 
-.reading { overflow: hidden; }
+/* Keep the footer at the bottom of the screen */
+body:has(.reading) {
+    display: flex;
+    flex-direction: column;
+}
+
+.reading {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    overflow: hidden;
+}
+
+/* children keep their full width */
+.reading > * { width: 100%; }
+
+/* candles sit just above the footer */
+.reading .shelf { margin-top: auto; }
 
 .reading [hidden] { display: none; }
 
