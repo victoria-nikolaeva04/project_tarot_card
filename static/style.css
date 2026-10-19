@@ -1965,3 +1965,27 @@ section[id] { scroll-margin-top: 90px; }
 @media (max-width: 760px) {
     .pendant:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(8)):not(:nth-child(10)) { display: none; }
 }
+
+
+/* ---------- On/off toggles: a small x shows that clicking turns them off ---------- */
+.tab_btn:not([data_category="all"])::after,
+.whimsy_btn::after,
+.calm_toggle::after {
+    content: '✕';
+    display: inline-block;
+    width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    vertical-align: baseline;
+    font-size: 0.85em;
+    opacity: 0;
+    transition: width 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), margin-left 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.tab_btn.active:not([data_category="all"])::after,
+.whimsy_btn[aria-pressed="true"]::after,
+.calm_toggle[aria-pressed="true"]::after {
+    width: 1em;
+    margin-left: 0.6em;
+    opacity: 1;
+}

@@ -49,10 +49,18 @@ function execute_universal_filter() {
 search_input.addEventListener('input', execute_universal_filter);
 
 // Category Tab Clicking Event
-tab_buttons.forEach(button => {
-    button.addEventListener('click', () => {
-        tab_buttons.forEach(btn => btn.classList.remove('active'));
+tab_buttons.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // clicking the filter that is already on (the one showing an x) turns it off
+        const turning_off = tab.classList.contains('active') && tab.getAttribute('data_category') !== 'all';
+        const button = turning_off ? document.querySelector('.tab_btn[data_category="all"]') : tab;
+
+        tab_buttons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
+        });
         button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
 
         active_category = button.getAttribute('data_category');
         execute_universal_filter();
