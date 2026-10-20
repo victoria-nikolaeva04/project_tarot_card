@@ -628,3 +628,64 @@ body:has(.reading) {
 .oracle_reading .oracle_error {
     color: var(--ember);
 }
+
+/* Oracle loader: two stars circling a moon */
+.oracle_loader {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 1rem;
+}
+
+.oracle_loader .oracle_moon {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.9rem;
+    color: var(--gold);
+    animation: oracle_glow 2.4s ease-in-out infinite;
+}
+
+.oracle_loader .orbit {
+    position: absolute;
+    inset: 0;
+    animation: oracle_spin 2.2s linear infinite;
+}
+
+.oracle_loader .orbit--slow {
+    inset: 14px;
+    animation-duration: 3.4s;
+    animation-direction: reverse;
+}
+
+.oracle_loader .orbit i {
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    border-radius: 50%;
+    background: var(--lilac);
+    box-shadow: 0 0 10px 2px var(--amethyst);
+}
+
+.oracle_loader .orbit--slow i {
+    background: var(--gold);
+    box-shadow: 0 0 10px 2px var(--ember);
+}
+
+@keyframes oracle_spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes oracle_glow {
+    0%, 100% { opacity: 0.55; text-shadow: 0 0 6px var(--gold-deep); }
+    50%      { opacity: 1;    text-shadow: 0 0 18px var(--gold); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .oracle_loader .orbit,
+    .oracle_loader .oracle_moon { animation: none; }
+}

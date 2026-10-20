@@ -172,8 +172,13 @@ async function request_oracle(cards, is_reversed_list, box) {
     const status = document.createElement('p');
     status.className = 'oracle_status';
     status.textContent = 'The Oracle is gazing into your cards...';
-    box.replaceChildren(title, status);
+    const loader = document.createElement('div');
+    loader.className = 'oracle_loader';
+    loader.setAttribute('aria-hidden', 'true');
+    loader.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span><span class="oracle_moon">☾</span>';
+    box.replaceChildren(title, loader, status);
     box.hidden = false;
+    box.setAttribute('aria-busy', 'true');
 
     try {
         const response = await fetch('/oracle', {
@@ -195,9 +200,11 @@ async function request_oracle(cards, is_reversed_list, box) {
             p.textContent = text.trim();
             return p;
         });
+        box.removeAttribute('aria-busy');
         box.replaceChildren(title, ...paragraphs);
     } catch (error) {
         if (run !== run_id) return;
+        box.removeAttribute('aria-busy');
         status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
         status.classList.add('oracle_error');
         box.replaceChildren(title, status);
