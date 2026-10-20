@@ -34,7 +34,7 @@ def get_image_filename(card_name):
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
     if match and match.group(1) in number_rank and match.group(2) in suit_prefix:
         rank, suit = match.groups()
-        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.jpg"
+        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.webp"
 
     # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.jpg"
     name_clean = re.sub(r"^The\s+", "", card_name)
@@ -48,7 +48,7 @@ def get_image_filename(card_name):
                 return filename
 
     # Default fallback
-    return "Cover.jpg"
+    return "Cover.webp"
 
 # Convert dataset into records and pre-calculate all image filenames
 data_records = df.to_dict(orient='records')
