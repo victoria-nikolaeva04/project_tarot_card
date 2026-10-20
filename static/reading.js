@@ -164,19 +164,50 @@ function key_points(text) {
     return wrap;
 }
 
+// Fill a paragraph with text, bolding every mention of a drawn card's name
+function fill_with_bold_cards(p, text, card_names) {
+    // "The Star" needs its "The", otherwise plain words like "star" would turn bold
+    const escaped = card_names.map(name =>
+        name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
+    const pattern = new RegExp('\\b(' + escaped.join('|') + ')\\b', 'gi');
+    text.split(pattern).forEach((part, i) => {
+        if (i % 2 === 1) {
+            const strong = document.createElement('strong');
+            // The match is case-insensitive, so show the card's proper name ("The Fool", not "the fool")
+            const proper = card_names.find(name =>
+                name.toLowerCase() === part.toLowerCase().replace(/\s+/g, ' '));
+            strong.textContent = proper || part;
+            p.appendChild(strong);
+        } else if (part) {
+            p.appendChild(document.createTextNode(part));
+        }
+    });
+}
+
 // AI Oracle: sends the picked cards to the server and shows the interpretation
 async function request_oracle(cards, is_reversed_list, box) {
     const run = run_id;
+    const eyebrow = document.createElement('span');
+    eyebrow.className = 'section_eyebrow';
+    eyebrow.textContent = 'The Oracle Speaks';
     const title = document.createElement('h3');
-    title.textContent = 'The Oracle speaks';
+    title.textContent = '';
+    const divider = document.createElement('div');
+    divider.className = 'oracle_divider';
+    divider.setAttribute('aria-hidden', 'true');
+    divider.innerHTML = '<span>✦</span>';
+    const crystal = document.createElement('div');
+    crystal.className = 'crystal';
+    crystal.setAttribute('aria-hidden', 'true');
+    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
+        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
+        + '<div class="crystal_base"></div>';
+    const head = [crystal, eyebrow, title, divider];
     const status = document.createElement('p');
     status.className = 'oracle_status';
     status.textContent = 'The Oracle is gazing into your cards...';
-    const loader = document.createElement('div');
-    loader.className = 'oracle_loader';
-    loader.setAttribute('aria-hidden', 'true');
-    loader.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span><span class="oracle_moon">☾</span>';
-    box.replaceChildren(title, loader, status);
+    box.replaceChildren(...head, status);
+    box.classList.add('loading');
     box.hidden = false;
     box.setAttribute('aria-busy', 'true');
 
@@ -195,19 +226,33 @@ async function request_oracle(cards, is_reversed_list, box) {
         if (run !== run_id) return;
         if (!response.ok) throw new Error(data.error);
 
-        const paragraphs = data.reading.split(/\n\s*\n/).map(text => {
+        const paragraphs = data.reading.split(/\n\s*\n/).map((text, i) => {
             const p = document.createElement('p');
-            p.textContent = text.trim();
+            p.style.setProperty('--i', i);
+            fill_with_bold_cards(p, text.trim(), cards.map(card => card.dataset.name));
             return p;
         });
+        const sign_off = document.createElement('span');
+        sign_off.className = 'oracle_sign_off';
+        sign_off.setAttribute('aria-hidden', 'true');
+        sign_off.textContent = '☾ ✦ ☽';
+        sign_off.style.setProperty('--i', paragraphs.length);
+        paragraphs.push(sign_off);
         box.removeAttribute('aria-busy');
-        box.replaceChildren(title, ...paragraphs);
+        box.classList.remove('loading');
+        box.replaceChildren(...head, ...paragraphs);
     } catch (error) {
         if (run !== run_id) return;
         box.removeAttribute('aria-busy');
+        box.classList.remove('loading');
         status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
         status.classList.add('oracle_error');
-        box.replaceChildren(title, status);
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'draw-btn oracle_retry';
+        retry.textContent = 'Ask the Oracle Again';
+        retry.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
+        box.replaceChildren(...head, status, retry);
     }
 }
 

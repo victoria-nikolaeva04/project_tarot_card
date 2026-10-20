@@ -422,7 +422,7 @@ body:has(.reading) {
 
 /* Draw Again keeps its place from the start and just fades in */
 #slots_actions {
-    margin-top: 2rem;
+    margin-top: 4.5rem;
     min-height: 3.2rem;
     opacity: 0;
     visibility: hidden;
@@ -568,8 +568,9 @@ body:has(.reading) {
 
 .result_actions {
     display: flex;
-    justify-content: center;
-    margin-top: 3rem;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4.5rem;
 }
 
 @keyframes reveal {
@@ -591,75 +592,115 @@ body:has(.reading) {
     .slot_well { animation: none; }
 }
 
-/* AI Oracle interpretation */
+/* AI Oracle: a talking crystal ball, with its words floating beneath it */
 .oracle_reading {
+    position: relative;
     max-width: 46rem;
     margin: 3rem auto 0;
-    padding: 1.75rem 2rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    background: rgba(26, 11, 46, 0.55);
+    padding: 0 1rem;
     text-align: center;
+    isolation: isolate;
+    animation: oracle_rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-.oracle_reading h3 {
-    font-family: var(--font-head);
-    color: var(--gold);
-    letter-spacing: 0.08em;
-    margin-bottom: 1rem;
+/* soft halo behind the words instead of a box */
+.oracle_reading::before {
+    content: '';
+    position: absolute;
+    inset: 6rem -4rem -3rem;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 20%, rgba(155, 93, 229, 0.28), rgba(26, 11, 46, 0) 68%);
+    pointer-events: none;
 }
 
-.oracle_reading p {
-    font-family: var(--font-body);
-    font-size: 1.2rem;
-    line-height: 1.7;
-    color: var(--ink);
-}
-
-.oracle_reading p + p {
-    margin-top: 1rem;
-}
-
-.oracle_reading .oracle_status {
-    color: var(--muted);
-    font-style: italic;
-}
-
-.oracle_reading .oracle_error {
-    color: var(--ember);
-}
-
-/* Oracle loader: two stars circling a moon */
-.oracle_loader {
+/* The crystal ball */
+.crystal {
+    --ball: 170px;
     position: relative;
-    width: 84px;
-    height: 84px;
-    margin: 0 auto 1rem;
+    width: var(--ball);
+    height: calc(var(--ball) + 34px);
+    margin: 0 auto 1.4rem;
 }
 
-.oracle_loader .oracle_moon {
+.crystal .orb {
     position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    font-size: 1.9rem;
-    color: var(--gold);
-    animation: oracle_glow 2.4s ease-in-out infinite;
+    top: 0;
+    left: 0;
+    width: var(--ball);
+    height: var(--ball);
+    overflow: hidden;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 55%, rgba(155, 93, 229, 0.55), rgba(45, 18, 80, 0.85) 62%, rgba(11, 6, 20, 0.95));
+    box-shadow:
+        inset 0 -14px 30px rgba(212, 184, 255, 0.28),
+        inset 0 8px 24px rgba(255, 255, 255, 0.18),
+        0 0 40px rgba(155, 93, 229, 0.55),
+        0 0 90px rgba(155, 93, 229, 0.3);
+    animation: ball_glow 5s ease-in-out infinite alternate;
 }
 
-.oracle_loader .orbit {
+/* swirling mist inside the glass */
+.crystal .mist {
     position: absolute;
-    inset: 0;
-    animation: oracle_spin 2.2s linear infinite;
+    inset: -30%;
+    background: conic-gradient(from 0deg, transparent 0 20%, rgba(212, 184, 255, 0.45) 35%, transparent 50% 70%, rgba(230, 193, 120, 0.35) 85%, transparent);
+    filter: blur(14px);
+    animation: oracle_spin 16s linear infinite;
+}
+.crystal .mist--b {
+    animation-duration: 24s;
+    animation-direction: reverse;
+    opacity: 0.7;
 }
 
-.oracle_loader .orbit--slow {
-    inset: 14px;
-    animation-duration: 3.4s;
+/* the shine on the glass */
+.crystal .glint {
+    position: absolute;
+    top: 10%;
+    left: 18%;
+    width: 34%;
+    height: 20%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+    transform: rotate(-28deg);
+    filter: blur(1px);
+}
+
+/* the little stand it rests on */
+.crystal_base {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 62%;
+    height: 34px;
+    transform: translateX(-50%);
+    border-radius: 12px 12px 50% 50% / 12px 12px 18px 18px;
+    background: linear-gradient(180deg, var(--gold-deep), #4a3016);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55), 0 0 18px rgba(230, 193, 120, 0.35);
+    z-index: -1;
+}
+
+/* stars circle the ball while it thinks */
+.crystal .orbit {
+    position: absolute;
+    --size: calc(var(--ball) + 28px);
+    top: -14px;
+    left: 50%;
+    width: var(--size);
+    height: var(--size);
+    margin-left: calc(var(--size) / -2);
+    opacity: 0;
+    transition: opacity 0.6s;
+    animation: oracle_spin 3.2s linear infinite;
+}
+.crystal .orbit--slow {
+    --size: calc(var(--ball) + 56px);
+    top: -28px;
+    animation-duration: 5s;
     animation-direction: reverse;
 }
-
-.oracle_loader .orbit i {
+.crystal .orbit i {
     position: absolute;
     top: -3px;
     left: 50%;
@@ -670,22 +711,112 @@ body:has(.reading) {
     background: var(--lilac);
     box-shadow: 0 0 10px 2px var(--amethyst);
 }
-
-.oracle_loader .orbit--slow i {
+.crystal .orbit--slow i {
     background: var(--gold);
     box-shadow: 0 0 10px 2px var(--ember);
+}
+
+.oracle_reading.loading .orbit { opacity: 1; }
+.oracle_reading.loading .mist { animation-duration: 3.5s; }
+.oracle_reading.loading .mist--b { animation-duration: 5s; }
+.oracle_reading.loading .orb {
+    animation-duration: 1.6s;
+}
+
+/* Words floating below the ball */
+.oracle_reading .section_eyebrow { letter-spacing: 0.4em; }
+
+.oracle_reading h3 {
+    font-family: var(--font-body);
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-weight: 500;
+    color: var(--parchment);
+    text-shadow: 0 0 22px rgba(230, 193, 120, 0.35);
+}
+
+.oracle_divider {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0.9rem auto 1.6rem;
+    max-width: 16rem;
+    color: var(--gold);
+}
+.oracle_divider::before,
+.oracle_divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(230, 193, 120, 0.6));
+}
+.oracle_divider::after { transform: scaleX(-1); }
+.oracle_divider span { animation: twinkle 2.8s ease-in-out infinite alternate; }
+
+.oracle_reading p {
+    font-family: var(--font-body);
+    font-size: 1.28rem;
+    line-height: 1.75;
+    color: var(--parchment);
+    text-shadow: 0 0 18px rgba(155, 93, 229, 0.55);
+    animation: oracle_rise 0.9s calc(var(--i, 0) * 0.35s + 0.1s) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.oracle_reading p + p { margin-top: 1.1rem; }
+.oracle_reading p strong {
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.oracle_reading p:first-of-type::first-letter {
+    font-family: var(--font-display);
+    font-size: 2.6em;
+    line-height: 0.9;
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(230, 193, 120, 0.6);
+    padding-right: 0.05em;
+}
+
+.oracle_reading .oracle_status {
+    font-style: italic;
+    color: var(--lilac);
+}
+.oracle_reading .oracle_error { color: var(--ember); }
+.oracle_retry { margin-top: 1.4rem; }
+
+.oracle_sign_off {
+    display: block;
+    margin-top: 1.8rem;
+    font-size: 1.1rem;
+    letter-spacing: 0.5em;
+    color: var(--gold-deep);
+    animation: oracle_rise 0.9s calc(var(--i, 0) * 0.35s + 0.1s) ease both;
 }
 
 @keyframes oracle_spin {
     to { transform: rotate(360deg); }
 }
 
-@keyframes oracle_glow {
-    0%, 100% { opacity: 0.55; text-shadow: 0 0 6px var(--gold-deep); }
-    50%      { opacity: 1;    text-shadow: 0 0 18px var(--gold); }
+@keyframes ball_glow {
+    from { filter: brightness(0.9); }
+    to   { filter: brightness(1.2); }
+}
+
+@keyframes oracle_rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .crystal { --ball: 140px; }
+    .oracle_reading p { font-size: 1.15rem; }
+    .oracle_reading::before { inset-inline: -1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .oracle_loader .orbit,
-    .oracle_loader .oracle_moon { animation: none; }
+    .oracle_reading,
+    .oracle_reading p,
+    .oracle_sign_off,
+    .oracle_divider span,
+    .crystal .orb,
+    .crystal .mist,
+    .crystal .orbit { animation: none; }
 }
