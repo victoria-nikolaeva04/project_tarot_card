@@ -60,7 +60,7 @@ def read_tarot_reading(picks):
     - Write a short introduction.
     - Cover each card in turn in relation to its position, using the meanings given.
     - Conclude with a clear, actionable piece of advice based on the overall reading.
-    - Keep it under 300 words.
+    - Keep it between 200 to 300 words.
     - Write plain paragraphs separated by blank lines. Do not use markdown, bullet points, or headings.
 
     CARDS DRAWN:
