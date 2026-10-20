@@ -1,7 +1,8 @@
 import os
 import re
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
 import pandas as pd
+from ai_oracle import read_tarot_reading
 
 app = Flask(__name__)
 
@@ -22,6 +23,8 @@ number_rank = {
     "Eight": 8, "Nine": 9, "Ten": 10, "Page": 11, "Knight": 12, "Queen": 13, "King": 14,
     }
 
+card_names = set(df["card_name"])
+
 # Cards without an astrological association would otherwise show "nan"
 df["zodiac_sign"] = df["zodiac_sign"].fillna("No Sign")
 
@@ -31,7 +34,7 @@ def get_image_filename(card_name):
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
     if match and match.group(1) in number_rank and match.group(2) in suit_prefix:
         rank, suit = match.groups()
-        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.jpg"
+        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.webp"
 
     # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.jpg"
     name_clean = re.sub(r"^The\s+", "", card_name)
@@ -45,7 +48,7 @@ def get_image_filename(card_name):
                 return filename
 
     # Default fallback
-    return "Cover.jpg"
+    return "Cover.webp"
 
 # Convert dataset into records and pre-calculate all image filenames
 data_records = df.to_dict(orient='records')
@@ -68,6 +71,24 @@ def reading():
 @app.route('/guide')
 def guide():
     return render_template('guide.html', tarot_cards = data_records)
+
+# AI Oracle: interprets the three cards picked on the reading page
+@app.route('/oracle', methods=['POST'])
+def oracle():
+    cards = (request.get_json(silent=True) or {}).get('cards')
+    valid = (
+        isinstance(cards, list) and len(cards) == 3
+        and all(isinstance(c, dict) and c.get('name') in card_names for c in cards)
+    )
+    if not valid:
+        return jsonify(error="Pick exactly three valid cards."), 400
+
+    picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
+    try:
+        return jsonify(reading=read_tarot_reading(picks))
+    except Exception:
+        app.logger.exception("Oracle request failed")
+        return jsonify(error="The Oracle is silent right now. Please try again in a moment."), 502
 
 # About Page
 @app.route('/about')

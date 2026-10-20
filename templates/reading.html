@@ -77,7 +77,7 @@
                             data-upright="{{ card.upright_meaning }}"
                             data-reversed="{{ card.reversed_meaning }}"
                             aria-label="Face-down tarot card">
-                        <img src="{{ url_for('static', filename='images/cards/Cover_Rare.jpg') }}" alt="Face-down tarot card">
+                        <img src="{{ url_for('static', filename='images/cards/Cover_Rare.webp') }}" alt="Face-down tarot card">
                     </button>
                     {% endfor %}
                 </div>
@@ -100,6 +100,7 @@
                         <div class="slot_caption" aria-live="polite"></div>
                     </div>
                 </div>
+                <div class="oracle_reading" id="slots_oracle" hidden></div>
                 <div class="result_actions" id="slots_actions">
                     <button type="button" id="slots_again_btn" class="draw-btn">Draw Again</button>
                 </div>
@@ -108,6 +109,7 @@
             <!-- Step 2: revealed spread -->
             <section id="result_section" aria-label="Your spread" hidden>
                 <div class="result_grid" id="result_grid"></div>
+                <div class="oracle_reading" id="result_oracle" hidden></div>
                 <div class="result_actions">
                     <button type="button" id="again_btn" class="draw-btn">Draw Again</button>
                 </div>

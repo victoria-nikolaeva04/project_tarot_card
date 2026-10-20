@@ -17,6 +17,8 @@ const slots_wrap = document.getElementById('slots');
 const slots = Array.from(slots_wrap.querySelectorAll('.slot'));
 const slots_actions = document.getElementById('slots_actions');
 const slots_again_btn = document.getElementById('slots_again_btn');
+const result_oracle = document.getElementById('result_oracle');
+const slots_oracle = document.getElementById('slots_oracle');
 
 const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, reduce_motion ? 0 : ms));
@@ -162,9 +164,100 @@ function key_points(text) {
     return wrap;
 }
 
+// Fill a paragraph with text, bolding every mention of a drawn card's name
+function fill_with_bold_cards(p, text, card_names) {
+    // "The Star" needs its "The", otherwise plain words like "star" would turn bold
+    const escaped = card_names.map(name =>
+        name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
+    const pattern = new RegExp('\\b(' + escaped.join('|') + ')\\b', 'gi');
+    text.split(pattern).forEach((part, i) => {
+        if (i % 2 === 1) {
+            const strong = document.createElement('strong');
+            // The match is case-insensitive, so show the card's proper name ("The Fool", not "the fool")
+            const proper = card_names.find(name =>
+                name.toLowerCase() === part.toLowerCase().replace(/\s+/g, ' '));
+            strong.textContent = proper || part;
+            p.appendChild(strong);
+        } else if (part) {
+            p.appendChild(document.createTextNode(part));
+        }
+    });
+}
+
+// AI Oracle: sends the picked cards to the server and shows the interpretation
+async function request_oracle(cards, is_reversed_list, box) {
+    const run = run_id;
+    const eyebrow = document.createElement('span');
+    eyebrow.className = 'section_eyebrow';
+    eyebrow.textContent = 'The Oracle Speaks';
+    const title = document.createElement('h3');
+    title.textContent = '';
+    const divider = document.createElement('div');
+    divider.className = 'oracle_divider';
+    divider.setAttribute('aria-hidden', 'true');
+    divider.innerHTML = '<span>✦</span>';
+    const crystal = document.createElement('div');
+    crystal.className = 'crystal';
+    crystal.setAttribute('aria-hidden', 'true');
+    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
+        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
+        + '<div class="crystal_base"></div>';
+    const head = [crystal, eyebrow, title, divider];
+    const status = document.createElement('p');
+    status.className = 'oracle_status';
+    status.textContent = 'The Oracle is gazing into your cards...';
+    box.replaceChildren(...head, status);
+    box.classList.add('loading');
+    box.hidden = false;
+    box.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch('/oracle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cards: cards.map((card, i) => ({
+                    name: card.dataset.name,
+                    reversed: is_reversed_list[i]
+                }))
+            })
+        });
+        const data = await response.json();
+        if (run !== run_id) return;
+        if (!response.ok) throw new Error(data.error);
+
+        const paragraphs = data.reading.split(/\n\s*\n/).map((text, i) => {
+            const p = document.createElement('p');
+            p.style.setProperty('--i', i);
+            fill_with_bold_cards(p, text.trim(), cards.map(card => card.dataset.name));
+            return p;
+        });
+        const sign_off = document.createElement('span');
+        sign_off.className = 'oracle_sign_off';
+        sign_off.setAttribute('aria-hidden', 'true');
+        sign_off.textContent = '☾ ✦ ☽';
+        sign_off.style.setProperty('--i', paragraphs.length);
+        paragraphs.push(sign_off);
+        box.removeAttribute('aria-busy');
+        box.classList.remove('loading');
+        box.replaceChildren(...head, ...paragraphs);
+    } catch (error) {
+        if (run !== run_id) return;
+        box.removeAttribute('aria-busy');
+        box.classList.remove('loading');
+        status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
+        status.classList.add('oracle_error');
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'draw-btn oracle_retry';
+        retry.textContent = 'Ask the Oracle Again';
+        retry.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
+        box.replaceChildren(...head, status, retry);
+    }
+}
+
 // Results Shown
-function build_result(card, index) {
-    const is_reversed = Math.random() < 0.25;
+function build_result(card, index, is_reversed) {
     const d = card.dataset;
 
     const box = document.createElement('div');
@@ -193,13 +286,15 @@ function build_result(card, index) {
 }
 
 reveal_btn.addEventListener('click', () => {
-    result_grid.replaceChildren(...picked.map(build_result));
+    const orientations = picked.map(() => Math.random() < 0.25);
+    result_grid.replaceChildren(...picked.map((card, i) => build_result(card, i, orientations[i])));
     pick_section.hidden = true;
     result_section.hidden = false;
     // Stagger the Reveal Animation
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
+    request_oracle(picked, orientations, result_oracle);
 });
 
 
@@ -340,6 +435,7 @@ async function begin_reveal() {
     }
     if (run !== run_id) return;
     slots_actions.classList.add('show');
+    request_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
 }
 
 whimsy_btn.addEventListener('click', () => {
@@ -367,6 +463,7 @@ function reset() {
     Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
     pick_section.classList.remove('revealing');
     slots_actions.classList.remove('show');
+    [result_oracle, slots_oracle].forEach(box => { box.hidden = true; box.replaceChildren(); });
     document.querySelectorAll('.fly_card').forEach(el => el.remove());
 
     shuffle_deck();
