@@ -26,6 +26,14 @@ A tarot card reader/dictionary for the whimsical people
 - Fixed minor bugs/touch-up items throughout the pages
 - Started connecting an AI API to start the building of the "Oracle"
 
+## Day 5
+- Got the AI API to work initally via terminal
+- Connect AI to Flask & the overall project
+- Updated/Cleaning up the prompting + response output
+- Style the AI Oracle Section with a crystal ball
+- Added a loader + a re-try button if API request initally fails due to 503 HTTP Error
+- Update the images to be smaller + webp format to help with performance
+
 
 ## Use of AI
 Used AI as an additional tool for debugging and building basic 'content' (for example - text within the 'About' page)
