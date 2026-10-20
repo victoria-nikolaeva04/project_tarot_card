@@ -590,3 +590,41 @@ body:has(.reading) {
     .flipper, .slot, .slot_caption { transition: none; }
     .slot_well { animation: none; }
 }
+
+/* AI Oracle interpretation */
+.oracle_reading {
+    max-width: 46rem;
+    margin: 3rem auto 0;
+    padding: 1.75rem 2rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: rgba(26, 11, 46, 0.55);
+    text-align: center;
+}
+
+.oracle_reading h3 {
+    font-family: var(--font-head);
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+.oracle_reading p {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    line-height: 1.7;
+    color: var(--ink);
+}
+
+.oracle_reading p + p {
+    margin-top: 1rem;
+}
+
+.oracle_reading .oracle_status {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.oracle_reading .oracle_error {
+    color: var(--ember);
+}

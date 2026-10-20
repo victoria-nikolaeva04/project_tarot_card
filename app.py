@@ -1,7 +1,8 @@
 import os
 import re
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
 import pandas as pd
+from ai_oracle import read_tarot_reading
 
 app = Flask(__name__)
 
@@ -21,6 +22,8 @@ number_rank = {
     "Ace": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5, "Six": 6, "Seven": 7,
     "Eight": 8, "Nine": 9, "Ten": 10, "Page": 11, "Knight": 12, "Queen": 13, "King": 14,
     }
+
+card_names = set(df["card_name"])
 
 # Cards without an astrological association would otherwise show "nan"
 df["zodiac_sign"] = df["zodiac_sign"].fillna("No Sign")
@@ -68,6 +71,24 @@ def reading():
 @app.route('/guide')
 def guide():
     return render_template('guide.html', tarot_cards = data_records)
+
+# AI Oracle: interprets the three cards picked on the reading page
+@app.route('/oracle', methods=['POST'])
+def oracle():
+    cards = (request.get_json(silent=True) or {}).get('cards')
+    valid = (
+        isinstance(cards, list) and len(cards) == 3
+        and all(isinstance(c, dict) and c.get('name') in card_names for c in cards)
+    )
+    if not valid:
+        return jsonify(error="Pick exactly three valid cards."), 400
+
+    picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
+    try:
+        return jsonify(reading=read_tarot_reading(picks))
+    except Exception:
+        app.logger.exception("Oracle request failed")
+        return jsonify(error="The Oracle is silent right now. Please try again in a moment."), 502
 
 # About Page
 @app.route('/about')

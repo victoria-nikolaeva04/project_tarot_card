@@ -17,6 +17,8 @@ const slots_wrap = document.getElementById('slots');
 const slots = Array.from(slots_wrap.querySelectorAll('.slot'));
 const slots_actions = document.getElementById('slots_actions');
 const slots_again_btn = document.getElementById('slots_again_btn');
+const result_oracle = document.getElementById('result_oracle');
+const slots_oracle = document.getElementById('slots_oracle');
 
 const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, reduce_motion ? 0 : ms));
@@ -162,9 +164,48 @@ function key_points(text) {
     return wrap;
 }
 
+// AI Oracle: sends the picked cards to the server and shows the interpretation
+async function request_oracle(cards, is_reversed_list, box) {
+    const run = run_id;
+    const title = document.createElement('h3');
+    title.textContent = 'The Oracle speaks';
+    const status = document.createElement('p');
+    status.className = 'oracle_status';
+    status.textContent = 'The Oracle is gazing into your cards...';
+    box.replaceChildren(title, status);
+    box.hidden = false;
+
+    try {
+        const response = await fetch('/oracle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cards: cards.map((card, i) => ({
+                    name: card.dataset.name,
+                    reversed: is_reversed_list[i]
+                }))
+            })
+        });
+        const data = await response.json();
+        if (run !== run_id) return;
+        if (!response.ok) throw new Error(data.error);
+
+        const paragraphs = data.reading.split(/\n\s*\n/).map(text => {
+            const p = document.createElement('p');
+            p.textContent = text.trim();
+            return p;
+        });
+        box.replaceChildren(title, ...paragraphs);
+    } catch (error) {
+        if (run !== run_id) return;
+        status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
+        status.classList.add('oracle_error');
+        box.replaceChildren(title, status);
+    }
+}
+
 // Results Shown
-function build_result(card, index) {
-    const is_reversed = Math.random() < 0.25;
+function build_result(card, index, is_reversed) {
     const d = card.dataset;
 
     const box = document.createElement('div');
@@ -193,13 +234,15 @@ function build_result(card, index) {
 }
 
 reveal_btn.addEventListener('click', () => {
-    result_grid.replaceChildren(...picked.map(build_result));
+    const orientations = picked.map(() => Math.random() < 0.25);
+    result_grid.replaceChildren(...picked.map((card, i) => build_result(card, i, orientations[i])));
     pick_section.hidden = true;
     result_section.hidden = false;
     // Stagger the Reveal Animation
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
+    request_oracle(picked, orientations, result_oracle);
 });
 
 
@@ -340,6 +383,7 @@ async function begin_reveal() {
     }
     if (run !== run_id) return;
     slots_actions.classList.add('show');
+    request_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
 }
 
 whimsy_btn.addEventListener('click', () => {
@@ -367,6 +411,7 @@ function reset() {
     Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
     pick_section.classList.remove('revealing');
     slots_actions.classList.remove('show');
+    [result_oracle, slots_oracle].forEach(box => { box.hidden = true; box.replaceChildren(); });
     document.querySelectorAll('.fly_card').forEach(el => el.remove());
 
     shuffle_deck();
