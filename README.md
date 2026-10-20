@@ -21,6 +21,10 @@ A tarot card reader/dictionary for the whimsical people
 - Fix minor bugs all over the appilcation
 
 ## Day 4
+- Added Styling to Reading Page
+- Created the "whimsy" button to allow for more than one reading experience
+- Fixed minor bugs/touch-up items throughout the pages
+- Started connecting an AI API to start the building of the "Oracle"
 
 
 ## Use of AI
