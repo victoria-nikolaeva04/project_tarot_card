@@ -50,15 +50,20 @@ def log_oracle_request(ip, cards, outcome, started, stats=None, error=None):
     if error is not None:
         record['error'] = f'{type(error).__name__}: {error}'[:300]
     usage_logger.info(json.dumps(record))
+    _warn_on_unusual_usage(visitor, now, record['total_tokens'])
 
-    # Anomaly checks: flag a visitor who is spending far more than a normal person would
-    day_key = (visitor, time.strftime('%Y-%m-%d', time.localtime(now)))
-    _tokens_today[day_key] += record['total_tokens']
-    recent = [t for t in _requests_hour[visitor] if now - t < 3600] + [now]
-    _requests_hour[visitor] = recent
-    if _tokens_today[day_key] > DAILY_TOKEN_WARNING:
+
+def _warn_on_unusual_usage(visitor, now, tokens_used):
+    """Log a warning when one visitor spends far more tokens or makes far more requests than a normal person would."""
+    day = time.strftime('%Y-%m-%d', time.localtime(now))
+    _tokens_today[(visitor, day)] += tokens_used
+    requests_this_hour = [t for t in _requests_hour[visitor] if now - t < 3600] + [now]
+    _requests_hour[visitor] = requests_this_hour
+
+    tokens_today = _tokens_today[(visitor, day)]
+    if tokens_today > DAILY_TOKEN_WARNING:
         logging.getLogger(__name__).warning(
-            'Oracle usage anomaly: visitor %s has used %d tokens today', visitor, _tokens_today[day_key])
-    if len(recent) > HOURLY_REQUEST_WARNING:
+            'Oracle usage anomaly: visitor %s has used %d tokens today', visitor, tokens_today)
+    if len(requests_this_hour) > HOURLY_REQUEST_WARNING:
         logging.getLogger(__name__).warning(
-            'Oracle usage anomaly: visitor %s made %d requests in the last hour', visitor, len(recent))
+            'Oracle usage anomaly: visitor %s made %d requests in the last hour', visitor, len(requests_this_hour))

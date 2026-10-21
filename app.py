@@ -13,8 +13,8 @@ from google.genai import errors as genai_errors
 app = Flask(__name__)
 
 # Card data, loaded once at startup
-df = pd.read_csv('tarot_card_meanings.csv')
-df.columns = df.columns.str.strip()
+cards_df = pd.read_csv('tarot_card_meanings.csv')
+cards_df.columns = cards_df.columns.str.strip()
 
 cards_directory = os.path.join(app.static_folder, "images", "cards")
 
@@ -24,15 +24,15 @@ suit_prefix = {
     }
 
 # Minor Arcana ranks map to the 01-14 numbering in the image filenames
-number_rank = {
+rank_number = {
     "Ace": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5, "Six": 6, "Seven": 7,
     "Eight": 8, "Nine": 9, "Ten": 10, "Page": 11, "Knight": 12, "Queen": 13, "King": 14,
     }
 
-card_names = set(df["card_name"])
+card_names = set(cards_df["card_name"])
 
 # Cards without an astrological association would otherwise show "nan"
-df["zodiac_sign"] = df["zodiac_sign"].fillna("No Sign")
+cards_df["zodiac_sign"] = cards_df["zodiac_sign"].fillna("No Sign")
 
 
 def _index_major_arcana_images():
@@ -52,9 +52,9 @@ major_arcana_images = _index_major_arcana_images()
 def get_image_filename(card_name):
     # Minor Arcana: "Ace of Cups" -> "Cups01.webp"
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
-    if match and match.group(1) in number_rank and match.group(2) in suit_prefix:
+    if match and match.group(1) in rank_number and match.group(2) in suit_prefix:
         rank, suit = match.groups()
-        return f"{suit_prefix[suit]}{number_rank[rank]:02d}.webp"
+        return f"{suit_prefix[suit]}{rank_number[rank]:02d}.webp"
 
     # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.webp"
     name_clean = re.sub(r"^The\s+", "", card_name)
@@ -65,7 +65,7 @@ def get_image_filename(card_name):
 
 
 # Convert dataset into records and pre-calculate all image filenames
-data_records = df.to_dict(orient='records')
+data_records = cards_df.to_dict(orient='records')
 for record in data_records:
     record["image_file"] = get_image_filename(record["card_name"])
 
@@ -114,23 +114,25 @@ ORACLE_ERRORS = {
 # Kept in memory per server process; behind a proxy, make sure request.remote_addr is the visitor's address.
 RATE_LIMIT = 4        # readings
 RATE_WINDOW = 60      # seconds
-recent_readings = defaultdict(deque)
-_recent_readings_lock = threading.Lock()
+reading_times_by_visitor = defaultdict(deque)
+_reading_times_lock = threading.Lock()
 _SWEEP_THRESHOLD = 1000   # tracked visitors before idle ones are dropped, so memory stays bounded
 
-def too_many_readings(visitor):
+def rate_limit_wait_seconds(visitor):
     """Return 0 and record the reading if allowed, else the seconds until the visitor may retry."""
     now = time.monotonic()
-    with _recent_readings_lock:
-        if len(recent_readings) > _SWEEP_THRESHOLD:
-            for key in [k for k, h in recent_readings.items() if not h or now - h[-1] > RATE_WINDOW]:
-                del recent_readings[key]
-        history = recent_readings[visitor]
-        while history and now - history[0] > RATE_WINDOW:
-            history.popleft()
-        if len(history) >= RATE_LIMIT:
-            return int(RATE_WINDOW - (now - history[0])) + 1
-        history.append(now)
+    with _reading_times_lock:
+        if len(reading_times_by_visitor) > _SWEEP_THRESHOLD:
+            idle_visitors = [other for other, times in reading_times_by_visitor.items()
+                             if not times or now - times[-1] > RATE_WINDOW]
+            for other in idle_visitors:
+                del reading_times_by_visitor[other]
+        visitor_times = reading_times_by_visitor[visitor]
+        while visitor_times and now - visitor_times[0] > RATE_WINDOW:
+            visitor_times.popleft()
+        if len(visitor_times) >= RATE_LIMIT:
+            return int(RATE_WINDOW - (now - visitor_times[0])) + 1
+        visitor_times.append(now)
         return 0
 
 def classify_oracle_error(error):
@@ -159,10 +161,10 @@ def are_valid_picks(cards):
         )
     )
 
-def oracle_error_body(info):
-    body = {"error": info["message"]}
-    if "sign" in info:
-        body.update(sign=info["sign"], aside=info["aside"])
+def oracle_error_body(error_info):
+    body = {"error": error_info["message"]}
+    if "sign" in error_info:
+        body.update(sign=error_info["sign"], aside=error_info["aside"])
     return body
 
 # AI Oracle: interprets the three cards picked on the reading page
@@ -174,13 +176,13 @@ def oracle():
         return jsonify(error="Pick exactly three valid cards."), 400
 
     visitor = request.remote_addr
-    retry_after = too_many_readings(visitor)
+    retry_after = rate_limit_wait_seconds(visitor)
     if retry_after:
         log_oracle_request(visitor, cards, 'slowdown', time.time())
-        info = ORACLE_ERRORS['slowdown']
-        response = jsonify(oracle_error_body(info))
+        error_info = ORACLE_ERRORS['slowdown']
+        response = jsonify(oracle_error_body(error_info))
         response.headers['Retry-After'] = str(retry_after)
-        return response, info["status"]
+        return response, error_info["status"]
 
     picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
     stats = {}
@@ -193,8 +195,8 @@ def oracle():
         kind = classify_oracle_error(error)
         log_oracle_request(visitor, picks, kind, started, stats, error)
         app.logger.warning("Oracle failed (%s): %s", kind, error, exc_info=kind in UNEXPECTED_ORACLE_ERRORS)
-        info = ORACLE_ERRORS[kind]
-        return jsonify(oracle_error_body(info)), info["status"]
+        error_info = ORACLE_ERRORS[kind]
+        return jsonify(oracle_error_body(error_info)), error_info["status"]
 
 # About Page
 @app.route('/about')
