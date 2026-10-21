@@ -1,5 +1,7 @@
 import os
 import re
+import time
+from collections import defaultdict, deque
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import httpx
@@ -93,8 +95,26 @@ ORACLE_ERRORS = {
                     sign="No comment", aside="(the cards are shy)"),
     'rumble':  dict(status=502, message="Something rumbled in the spirit realm.",
                     sign="Out of order", aside="(not your fault)"),
+    'slowdown': dict(status=429, message="The Oracle needs a moment between readings.",
+                    sign="One at a time", aside="(she only has one crystal ball)"),
     'generic': dict(status=502, message="The Oracle is silent right now. Please try again in a moment."),
 }
+
+# Guardrail: each visitor gets a few readings per window, so one browser can't burn through the quota.
+# Kept in memory per server process; behind a proxy, make sure request.remote_addr is the visitor's address.
+RATE_LIMIT = 4        # readings
+RATE_WINDOW = 60      # seconds
+recent_readings = defaultdict(deque)
+
+def too_many_readings(visitor):
+    now = time.monotonic()
+    history = recent_readings[visitor]
+    while history and now - history[0] > RATE_WINDOW:
+        history.popleft()
+    if len(history) >= RATE_LIMIT:
+        return int(RATE_WINDOW - (now - history[0])) + 1
+    history.append(now)
+    return 0
 
 def classify_oracle_error(error):
     if isinstance(error, EmptyReading):
@@ -120,6 +140,13 @@ def oracle():
     )
     if not valid:
         return jsonify(error="Pick exactly three valid cards."), 400
+
+    retry_after = too_many_readings(request.remote_addr)
+    if retry_after:
+        info = ORACLE_ERRORS['slowdown']
+        response = jsonify(error=info["message"], sign=info["sign"], aside=info["aside"])
+        response.headers['Retry-After'] = str(retry_after)
+        return response, info["status"]
 
     picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
     try:
