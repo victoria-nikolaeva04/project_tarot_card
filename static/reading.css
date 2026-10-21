@@ -8,7 +8,6 @@
      5. Responsive
    ========================================================= */
 
-
 /* ---------- Page base ---------- */
 :root {
     --ease-soft: cubic-bezier(0.45, 0.05, 0.2, 1);   /* gentle start and finish */
@@ -54,7 +53,6 @@ body:has(.reading) {
 .reading .wax::before { background: radial-gradient(ellipse at center, #ffe9bf 0%, #f3e8cf 50%, #cfc4ac 100%); }
 .reading .wax::after  { background: linear-gradient(90deg, #e2d8c2, #fbf5e6); }
 
-
 /* ---------- Header ---------- */
 .reading_hero { position: relative; }
 
@@ -83,7 +81,6 @@ body:has(.reading) {
     font-size: 1.25rem;
     color: var(--muted);
 }
-
 
 /* ---------- Pick step ---------- */
 .pick_status {
@@ -223,7 +220,6 @@ body:has(.reading) {
     transform: none;
     box-shadow: none;
 }
-
 
 /* ---------- Whimsy mode: arch + shadow spots ---------- */
 /* the mode switch floats in the top-right corner, out of the flow so it never shifts the layout */
@@ -484,7 +480,6 @@ body:has(.reading) {
     transition: height 0.8s var(--ease-soft), opacity 0.5s var(--ease-soft), visibility 0s 0.8s;
 }
 
-
 /* ---------- Result step ---------- */
 .result_grid {
     display: grid;
@@ -595,7 +590,6 @@ body:has(.reading) {
     from { opacity: 0; transform: translateY(20px) scale(0.9); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 
 /* ---------- Responsive ---------- */
 @media (max-width: 480px) {

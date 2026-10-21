@@ -12,7 +12,6 @@
      9. Responsive
    ========================================================= */
 
-
 /* ---------- Page base ---------- */
 .about { overflow: hidden; }
 
@@ -34,7 +33,6 @@
 
 .about strong { color: var(--parchment); font-weight: 600; }
 .about em { color: var(--lilac); }
-
 
 /* ---------- Header ---------- */
 .about_hero { position: relative; }
@@ -64,7 +62,6 @@
     font-size: 1.25rem;
     color: var(--muted);
 }
-
 
 /* ---------- Text blocks ---------- */
 .about_text { max-width: 44rem; }
@@ -102,7 +99,6 @@
 .glass_card h3 { margin: 0.3rem 0; font-family: var(--font-body); font-size: 1.8rem; font-weight: 500; color: var(--parchment); }
 .glass_card p { color: var(--muted); }
 
-
 /* ---------- The Site Section ---------- */
 /* wide rows instead of a grid of small tiles */
 .feature_list {
@@ -136,7 +132,6 @@
 }
 .feature_tile:hover .feature_arrow { transform: translateX(8px); }
 
-
 /* ---------- Why Tarot Section ---------- */
 .pull_quote {
     position: relative;
@@ -162,7 +157,6 @@
     color: var(--gold);
     text-shadow: 0 0 10px rgba(230, 193, 120, 0.9);
 }
-
 
 /* ---------- The Deck Section ---------- */
 /* ---------- The Deck: History ---------- */
@@ -245,9 +239,6 @@
     .feature_arrow { display: none; }
     .feature_tile { grid-template-columns: auto 1fr; }
     .deck_note { grid-template-columns: 3rem 1fr; column-gap: 1rem; }
-    .creator { grid-template-columns: 1fr; justify-items: center; }
-    .tech_flow { flex-direction: column; }
-    .flow_arrow { transform: rotate(90deg); }
 }
 
 @media (max-width: 900px) {

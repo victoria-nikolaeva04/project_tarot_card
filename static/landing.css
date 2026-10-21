@@ -9,10 +9,8 @@
      6. Calm mode + reduced motion (landing-only parts)
    ========================================================= */
 
-
 /* ---------- Page base ---------- */
 .landing { overflow: hidden; }
-
 
 /* ---------- Hero ---------- */
 .landing .hero_section {
@@ -95,7 +93,6 @@
 
 .hero_candles .candle { position: absolute; }
 
-
 /* Parallax on-scroll */
 .landing .pendants     { translate: 0 calc(var(--hp, 0) * 50px); }
 .landing .hero_candles { translate: 0 calc(var(--hp, 0) * -30px); }
@@ -136,7 +133,6 @@
     .hero_candles .candle:nth-child(2),
     .hero_candles .candle:nth-child(4) { display: none; }
 }
-
 
 /* ---------- What is Tarot Section ---------- */
 .intro {
@@ -207,7 +203,6 @@
 .intro p { margin-bottom: 1.1rem; font-size: 1.15rem; color: var(--muted); }
 .intro p.intro_lead { font-size: 1.5rem; line-height: 1.4; color: var(--parchment); }
 
-
 .suits { list-style: none; border-top: 1px solid rgba(230, 193, 120, 0.18); }
 .suits li {
     padding: 0.8rem 0;
@@ -230,7 +225,6 @@
     .intro { grid-template-columns: 1fr; }
     .intro_card { margin: 0; }
 }
-
 
 /* ---------- Help with Tarot Section ---------- */
 .help {
@@ -300,7 +294,6 @@
 @media (max-width: 760px) {
     .help_steps { grid-template-columns: 1fr; margin: 2rem 0; }
 }
-
 
 /* ---------- Menu Section ---------- */
 .menu {
@@ -385,9 +378,6 @@ a.menu_row:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px;
     50%      { transform: translateX(8px); }
 }
 
-.menu_row--soon { opacity: 0.65; }
-.menu_row--soon.in { animation-name: reveal-soon; }
-
 @media (max-width: 760px) {
     .menu_row { grid-template-columns: 2.5rem 1fr 1.5rem; }
     .menu_desc { grid-column: 2; grid-row: 2; font-size: 1rem; }
@@ -395,7 +385,7 @@ a.menu_row:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px;
 }
 
 /* ---------- Calm mode + reduced motion (landing-only parts) ---------- */
-.calm .menu_row--soon { opacity: 0.65 !important; }
+
 .calm .menu_row::after { animation: none !important; transform: scaleX(1) !important; }
 .calm .js .hero_content h1 .w,
 .calm .hero_content h1 .w { animation: none !important; opacity: 1 !important; }
@@ -407,7 +397,7 @@ a.menu_row:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px;
 
 @media (prefers-reduced-motion: reduce) {
     .js .hero_content h1 .w { opacity: 1; }
-    .menu_row--soon { opacity: 0.65; }
+
     .landing .hero_content,
     .landing .pendants,
     .landing .hero_candles { translate: none; opacity: 1; }
