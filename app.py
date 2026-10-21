@@ -2,7 +2,9 @@ import os
 import re
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
-from ai_oracle import read_tarot_reading
+import httpx
+from ai_oracle import read_tarot_reading, EmptyReading
+from google.genai import errors as genai_errors
 
 app = Flask(__name__)
 
@@ -72,6 +74,42 @@ def reading():
 def guide():
     return render_template('guide.html', tarot_cards = data_records)
 
+# AI Oracle: what the visitor sees for each kind of failure.
+# "sign" is the heading on the little board by the crystal ball, "aside" the joke added to the message.
+ORACLE_ERRORS = {
+    'quota':   dict(status=429, message="The Oracle is on a break.",
+                    sign="Will be back", aside="(gone for a snack)"),
+    'busy':    dict(status=503, message="The Oracle's crystal ball is fogging up.",
+                    sign="Back in a minute", aside="(very popular today)"),
+    'timeout': dict(status=504, message="The Oracle took too long to find her words.",
+                    sign="Brain freeze", aside="(she lost her train of thought)"),
+    'offline': dict(status=502, message="The Oracle can't reach the spirit realm.",
+                    sign="No signal", aside="(the spirits are offline)"),
+    'locked':  dict(status=502, message="The Oracle can't get into her own tower.",
+                    sign="Closed", aside="(lost the key)"),
+    'missing': dict(status=502, message="The Oracle has misplaced her crystal ball.",
+                    sign="Gone looking", aside="(it rolled away)"),
+    'silent':  dict(status=502, message="The spirits whispered nothing this time.",
+                    sign="No comment", aside="(the cards are shy)"),
+    'rumble':  dict(status=502, message="Something rumbled in the spirit realm.",
+                    sign="Out of order", aside="(not your fault)"),
+    'generic': dict(status=502, message="The Oracle is silent right now. Please try again in a moment."),
+}
+
+def classify_oracle_error(error):
+    if isinstance(error, EmptyReading):
+        return 'silent'
+    if isinstance(error, httpx.TimeoutException):
+        return 'timeout'
+    if isinstance(error, httpx.TransportError):
+        return 'offline'
+    if isinstance(error, genai_errors.APIError):
+        return {
+            429: 'quota', 503: 'busy', 504: 'timeout',
+            401: 'locked', 403: 'locked', 404: 'missing', 500: 'rumble',
+        }.get(error.code, 'generic')
+    return 'generic'
+
 # AI Oracle: interprets the three cards picked on the reading page
 @app.route('/oracle', methods=['POST'])
 def oracle():
@@ -86,9 +124,14 @@ def oracle():
     picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
     try:
         return jsonify(reading=read_tarot_reading(picks))
-    except Exception:
-        app.logger.exception("Oracle request failed")
-        return jsonify(error="The Oracle is silent right now. Please try again in a moment."), 502
+    except Exception as error:
+        kind = classify_oracle_error(error)
+        info = ORACLE_ERRORS[kind]
+        app.logger.warning("Oracle failed (%s): %s", kind, error, exc_info=kind in ('generic', 'rumble', 'locked', 'missing'))
+        body = {"error": info["message"]}
+        if "sign" in info:
+            body.update(sign=info["sign"], aside=info["aside"])
+        return jsonify(body), info["status"]
 
 # About Page
 @app.route('/about')

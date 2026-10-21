@@ -1,6 +1,8 @@
+import time
 import pandas as pd
 from dotenv import load_dotenv
 from google import genai
+from google.genai import errors
 
 # 1. Load the environment variables from your .env file
 load_dotenv()
@@ -14,7 +16,13 @@ meanings = pd.read_csv('tarot_card_meanings.csv')
 meanings.columns = meanings.columns.str.strip()
 meanings = meanings.set_index('card_name')
 
+class EmptyReading(Exception):
+    """The model answered but returned no text (for example, it was blocked)."""
+
+
 POSITIONS = ['Past', 'Present', 'Future']
+RETRIES = 2         # extra attempts when the model is overloaded
+RETRY_DELAY = 1.5   # seconds, multiplied by the attempt number
 
 
 def describe_card(position, name, is_reversed):
@@ -67,9 +75,17 @@ def read_tarot_reading(picks):
     {drawn_cards}
     """
 
-    response = client.models.generate_content(
-        model='gemini-3.8-flash',
-        contents=prompt,
-    )
-
-    return response.text
+    # Google answers 503 when the model is overloaded; that usually clears within seconds
+    for attempt in range(RETRIES + 1):
+        try:
+            response = client.models.generate_content(
+                model='gemini-3.8-flash',
+                contents=prompt,
+            )
+            if not response.text:
+                raise EmptyReading('The model returned no text.')
+            return response.text
+        except errors.ServerError as error:
+            if error.code != 503 or attempt == RETRIES:
+                raise
+            time.sleep(RETRY_DELAY * (attempt + 1))

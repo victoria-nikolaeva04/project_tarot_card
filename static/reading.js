@@ -255,7 +255,12 @@ async function request_oracle(cards, is_reversed_list, box) {
         });
         const data = await response.json();
         if (run !== run_id) return;
-        if (!response.ok) throw new Error(data.error);
+        if (!response.ok) {
+            const failure = new Error(data.error);
+            failure.sign = data.sign;
+            failure.aside = data.aside;
+            throw failure;
+        }
 
         const paragraphs = data.reading.split(/\n\s*\n/).map((text, i) => {
             const p = document.createElement('p');
@@ -278,6 +283,15 @@ async function request_oracle(cards, is_reversed_list, box) {
         box.classList.remove('loading');
         status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
         status.classList.add('oracle_error');
+        if (error.sign) {
+            // The failure comes with a sign: stand it by the dimmed crystal ball
+            const sign = document.createElement('div');
+            sign.className = 'crystal_sign';
+            sign.innerHTML = `<span>${error.sign}</span>`;
+            status.textContent += ' ' + error.aside;
+            crystal.appendChild(sign);
+            crystal.classList.add('asleep');
+        }
         const retry = document.createElement('button');
         retry.type = 'button';
         retry.className = 'draw-btn oracle_retry';
