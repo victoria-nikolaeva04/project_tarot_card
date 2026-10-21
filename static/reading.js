@@ -184,6 +184,24 @@ function fill_with_bold_cards(p, text, card_names) {
     });
 }
 
+// AI Oracle: waits for a button press so tokens are only spent when the user asks
+function offer_oracle(cards, is_reversed_list, box) {
+    const eyebrow = document.createElement('span');
+    eyebrow.className = 'section_eyebrow';
+    eyebrow.textContent = 'The Oracle Awaits';
+    const status = document.createElement('p');
+    status.className = 'oracle_status';
+    status.textContent = 'Would you like the Oracle to interpret your cards?';
+    const ask = document.createElement('button');
+    ask.type = 'button';
+    ask.className = 'draw-btn oracle_retry';
+    ask.textContent = 'Ask the Oracle';
+    ask.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
+    box.classList.remove('loading');
+    box.replaceChildren(eyebrow, status, ask);
+    box.hidden = false;
+}
+
 // AI Oracle: sends the picked cards to the server and shows the interpretation
 async function request_oracle(cards, is_reversed_list, box) {
     const run = run_id;
@@ -294,7 +312,7 @@ reveal_btn.addEventListener('click', () => {
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
-    request_oracle(picked, orientations, result_oracle);
+    offer_oracle(picked, orientations, result_oracle);
 });
 
 
@@ -435,7 +453,7 @@ async function begin_reveal() {
     }
     if (run !== run_id) return;
     slots_actions.classList.add('show');
-    request_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
+    offer_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
 }
 
 whimsy_btn.addEventListener('click', () => {
