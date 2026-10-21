@@ -198,8 +198,26 @@ function offer_oracle(cards, is_reversed_list, box) {
     ask.textContent = 'Ask the Oracle';
     ask.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
     box.classList.remove('loading');
-    box.replaceChildren(eyebrow, status, ask);
+    box.replaceChildren(make_crystal(), oracle_text(eyebrow, status, ask));
     box.hidden = false;
+}
+
+// The crystal ball sits beside the Oracle's words
+function make_crystal() {
+    const crystal = document.createElement('div');
+    crystal.className = 'crystal';
+    crystal.setAttribute('aria-hidden', 'true');
+    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
+        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
+        + '<div class="crystal_base"></div>';
+    return crystal;
+}
+
+function oracle_text(...children) {
+    const text = document.createElement('div');
+    text.className = 'oracle_text';
+    text.append(...children);
+    return text;
 }
 
 // AI Oracle: sends the picked cards to the server and shows the interpretation
@@ -214,17 +232,12 @@ async function request_oracle(cards, is_reversed_list, box) {
     divider.className = 'oracle_divider';
     divider.setAttribute('aria-hidden', 'true');
     divider.innerHTML = '<span>✦</span>';
-    const crystal = document.createElement('div');
-    crystal.className = 'crystal';
-    crystal.setAttribute('aria-hidden', 'true');
-    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
-        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
-        + '<div class="crystal_base"></div>';
-    const head = [crystal, eyebrow, title, divider];
+    const crystal = make_crystal();
+    const head = [eyebrow, title, divider];
     const status = document.createElement('p');
     status.className = 'oracle_status';
     status.textContent = 'The Oracle is gazing into your cards...';
-    box.replaceChildren(...head, status);
+    box.replaceChildren(crystal, oracle_text(...head, status));
     box.classList.add('loading');
     box.hidden = false;
     box.setAttribute('aria-busy', 'true');
@@ -258,7 +271,7 @@ async function request_oracle(cards, is_reversed_list, box) {
         paragraphs.push(sign_off);
         box.removeAttribute('aria-busy');
         box.classList.remove('loading');
-        box.replaceChildren(...head, ...paragraphs);
+        box.replaceChildren(crystal, oracle_text(...head, ...paragraphs));
     } catch (error) {
         if (run !== run_id) return;
         box.removeAttribute('aria-busy');
@@ -270,7 +283,7 @@ async function request_oracle(cards, is_reversed_list, box) {
         retry.className = 'draw-btn oracle_retry';
         retry.textContent = 'Ask the Oracle Again';
         retry.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
-        box.replaceChildren(...head, status, retry);
+        box.replaceChildren(crystal, oracle_text(...head, status, retry));
     }
 }
 
