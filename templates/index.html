@@ -120,7 +120,7 @@
             <ol class="help_steps" role="list">
                 <li class="reveal" data-reveal="scale" style="--i:2"><span class="help_num">1</span><h3>Ask</h3><p>Hold a question in mind, or simply ask what you need to know today.</p></li>
                 <li class="reveal" data-reveal="scale" style="--i:3"><span class="help_num">2</span><h3>Draw</h3><p>Choose three cards from the deck, one each for past, present and future.</p></li>
-                <li class="reveal" data-reveal="scale" style="--i:4"><span class="help_num">3</span><h3>Reflect</h3><p>Read each meaning, upright or reversed, and notice what resonates with you.</p></li>
+                <li class="reveal" data-reveal="scale" style="--i:4"><span class="help_num">3</span><h3>Reflect</h3><p>Read each meaning, upright or reversed, then ask the AI Oracle to weave them into one story.</p></li>
             </ol>
             <div class="hero_buttons reveal" style="--i:5">
                 <a href="{{ url_for('reading') }}" class="btn btn_primary"><span class="btn_glyph" aria-hidden="true">✦</span> Start a Reading</a>
@@ -149,12 +149,13 @@
                     <span class="menu_desc">All 78 cards, upright and reversed.</span>
                     <span class="menu_arrow" aria-hidden="true">→</span>
                 </a></li>
-                <li><div class="menu_row menu_row--soon reveal" data-reveal="left" style="--i:2">
+                <li><a class="menu_row reveal" data-reveal="left" style="--i:2" href="{{ url_for('reading') }}">
                     <span class="menu_num">03</span>
                     <span class="menu_name">AI Oracle</span>
-                    <span class="menu_desc">Coming soon.</span>
-                    <span class="menu_arrow" aria-hidden="true"></span>
-                </div></li>
+                    <span class="menu_desc">Let the Oracle read your three cards as one story.</span>
+                    <span class="menu_arrow" aria-hidden="true">→</span>
+                </a>
+                </li>
                 <li><a class="menu_row reveal" data-reveal="left" style="--i:3" href="{{ url_for('about') }}">
                     <span class="menu_num">04</span>
                     <span class="menu_name">About</span>

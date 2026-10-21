@@ -184,6 +184,42 @@ function fill_with_bold_cards(p, text, card_names) {
     });
 }
 
+// AI Oracle: waits for a button press so tokens are only spent when the user asks
+function offer_oracle(cards, is_reversed_list, box) {
+    const eyebrow = document.createElement('span');
+    eyebrow.className = 'section_eyebrow';
+    eyebrow.textContent = 'The Oracle Awaits';
+    const status = document.createElement('p');
+    status.className = 'oracle_status';
+    status.textContent = 'Would you like the Oracle to interpret your cards?';
+    const ask = document.createElement('button');
+    ask.type = 'button';
+    ask.className = 'draw-btn oracle_retry';
+    ask.textContent = 'Ask the Oracle';
+    ask.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
+    box.classList.remove('loading');
+    box.replaceChildren(make_crystal(), oracle_text(eyebrow, status, ask));
+    box.hidden = false;
+}
+
+// The crystal ball sits beside the Oracle's words
+function make_crystal() {
+    const crystal = document.createElement('div');
+    crystal.className = 'crystal';
+    crystal.setAttribute('aria-hidden', 'true');
+    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
+        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
+        + '<div class="crystal_base"></div>';
+    return crystal;
+}
+
+function oracle_text(...children) {
+    const text = document.createElement('div');
+    text.className = 'oracle_text';
+    text.append(...children);
+    return text;
+}
+
 // AI Oracle: sends the picked cards to the server and shows the interpretation
 async function request_oracle(cards, is_reversed_list, box) {
     const run = run_id;
@@ -196,17 +232,12 @@ async function request_oracle(cards, is_reversed_list, box) {
     divider.className = 'oracle_divider';
     divider.setAttribute('aria-hidden', 'true');
     divider.innerHTML = '<span>✦</span>';
-    const crystal = document.createElement('div');
-    crystal.className = 'crystal';
-    crystal.setAttribute('aria-hidden', 'true');
-    crystal.innerHTML = '<span class="orbit"><i></i></span><span class="orbit orbit--slow"><i></i></span>'
-        + '<div class="orb"><span class="mist"></span><span class="mist mist--b"></span><span class="glint"></span></div>'
-        + '<div class="crystal_base"></div>';
-    const head = [crystal, eyebrow, title, divider];
+    const crystal = make_crystal();
+    const head = [eyebrow, title, divider];
     const status = document.createElement('p');
     status.className = 'oracle_status';
     status.textContent = 'The Oracle is gazing into your cards...';
-    box.replaceChildren(...head, status);
+    box.replaceChildren(crystal, oracle_text(...head, status));
     box.classList.add('loading');
     box.hidden = false;
     box.setAttribute('aria-busy', 'true');
@@ -224,7 +255,12 @@ async function request_oracle(cards, is_reversed_list, box) {
         });
         const data = await response.json();
         if (run !== run_id) return;
-        if (!response.ok) throw new Error(data.error);
+        if (!response.ok) {
+            const failure = new Error(data.error);
+            failure.sign = data.sign;
+            failure.aside = data.aside;
+            throw failure;
+        }
 
         const paragraphs = data.reading.split(/\n\s*\n/).map((text, i) => {
             const p = document.createElement('p');
@@ -240,19 +276,28 @@ async function request_oracle(cards, is_reversed_list, box) {
         paragraphs.push(sign_off);
         box.removeAttribute('aria-busy');
         box.classList.remove('loading');
-        box.replaceChildren(...head, ...paragraphs);
+        box.replaceChildren(crystal, oracle_text(...head, ...paragraphs));
     } catch (error) {
         if (run !== run_id) return;
         box.removeAttribute('aria-busy');
         box.classList.remove('loading');
         status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
         status.classList.add('oracle_error');
+        if (error.sign) {
+            // The failure comes with a sign: stand it by the dimmed crystal ball
+            const sign = document.createElement('div');
+            sign.className = 'crystal_sign';
+            sign.innerHTML = `<span>${error.sign}</span>`;
+            status.textContent += ' ' + error.aside;
+            crystal.appendChild(sign);
+            crystal.classList.add('asleep');
+        }
         const retry = document.createElement('button');
         retry.type = 'button';
         retry.className = 'draw-btn oracle_retry';
         retry.textContent = 'Ask the Oracle Again';
         retry.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
-        box.replaceChildren(...head, status, retry);
+        box.replaceChildren(crystal, oracle_text(...head, status, retry));
     }
 }
 
@@ -294,7 +339,7 @@ reveal_btn.addEventListener('click', () => {
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
-    request_oracle(picked, orientations, result_oracle);
+    offer_oracle(picked, orientations, result_oracle);
 });
 
 
@@ -435,7 +480,7 @@ async function begin_reveal() {
     }
     if (run !== run_id) return;
     slots_actions.classList.add('show');
-    request_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
+    offer_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
 }
 
 whimsy_btn.addEventListener('click', () => {
