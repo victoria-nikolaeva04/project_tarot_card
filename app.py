@@ -6,6 +6,7 @@ from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import httpx
 from ai_oracle import read_tarot_reading, EmptyReading
+from usage_log import log_oracle_request
 from google.genai import errors as genai_errors
 
 app = Flask(__name__)
@@ -143,16 +144,22 @@ def oracle():
 
     retry_after = too_many_readings(request.remote_addr)
     if retry_after:
+        log_oracle_request(request.remote_addr, cards, 'slowdown', time.time())
         info = ORACLE_ERRORS['slowdown']
         response = jsonify(error=info["message"], sign=info["sign"], aside=info["aside"])
         response.headers['Retry-After'] = str(retry_after)
         return response, info["status"]
 
     picks = [{"name": c["name"], "reversed": bool(c.get("reversed"))} for c in cards]
+    stats = {}
+    started = time.time()
     try:
-        return jsonify(reading=read_tarot_reading(picks))
+        reading = read_tarot_reading(picks, stats)
+        log_oracle_request(request.remote_addr, picks, 'ok', started, stats)
+        return jsonify(reading=reading)
     except Exception as error:
         kind = classify_oracle_error(error)
+        log_oracle_request(request.remote_addr, picks, kind, started, stats, error)
         info = ORACLE_ERRORS[kind]
         app.logger.warning("Oracle failed (%s): %s", kind, error, exc_info=kind in ('generic', 'rumble', 'locked', 'missing'))
         body = {"error": info["message"]}

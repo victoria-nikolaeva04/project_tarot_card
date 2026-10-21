@@ -60,11 +60,12 @@ def describe_card(position, name, is_reversed):
     return '\n'.join(lines)
 
 
-def read_tarot_reading(picks):
+def read_tarot_reading(picks, stats=None):
     """
     Acts as an AI Oracle to interpret the three cards the user picked.
 
     picks: list of {"name": "The Fool", "reversed": False}, in Past, Present, Future order.
+    stats: optional dict that is filled with attempts and token counts, for usage logging.
     Returns the reading as plain text paragraphs.
     """
     if len(picks) != len(POSITIONS):
@@ -93,7 +94,9 @@ def read_tarot_reading(picks):
     """
 
     # Google answers 503 when the model is overloaded; that usually clears within seconds
+    stats = stats if stats is not None else {}
     for attempt in range(RETRIES + 1):
+        stats['attempts'] = attempt + 1
         try:
             response = client.models.generate_content(
                 model='gemini-3.8-flash',
@@ -103,6 +106,14 @@ def read_tarot_reading(picks):
                     max_output_tokens=MAX_OUTPUT_TOKENS,
                 ),
             )
+            usage = response.usage_metadata
+            if usage:
+                stats.update(
+                    prompt_tokens=usage.prompt_token_count or 0,
+                    output_tokens=usage.candidates_token_count or 0,
+                    thinking_tokens=usage.thoughts_token_count or 0,
+                    total_tokens=usage.total_token_count or 0,
+                )
             if not response.text:
                 raise EmptyReading('The model returned no text.')
             return response.text
