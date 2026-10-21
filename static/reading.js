@@ -431,15 +431,16 @@ async function begin_reveal() {
     const run = run_id;
     slots.forEach(s => s.querySelector('.slot_remove')?.remove());
 
-    await sleep(700);
+    await sleep(300);
     if (run !== run_id) return;
     pick_section.classList.add('revealing');
 
-    await sleep(900);
+    // Let the deck finish folding away before scrolling, so the page isn't moving while it reflows
+    await sleep(850);
     if (run !== run_id) return;
     slots_wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    await sleep(1400);
+    await sleep(600);
     for (let i = 0; i < slots.length; i++) {
         if (run !== run_id) return;
         const slot = slots[i];
@@ -447,14 +448,15 @@ async function begin_reveal() {
         const is_reversed = Boolean(slot.dataset.reversed);
 
         slot.querySelector('.flipper').classList.add('flipped');
-        await sleep(1500);
+        await sleep(900);
         if (run !== run_id) return;
 
         slot.querySelector('.slot_caption').replaceChildren(...card_caption(d, is_reversed));
         slot.classList.add('revealed');
-        await sleep(1200);
+        await sleep(500);
     }
     if (run !== run_id) return;
+    pick_status.classList.add('done');
     slots_actions.classList.add('show');
     offer_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
 }
@@ -483,6 +485,7 @@ function reset() {
     slots.forEach(clear_slot);
     Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
     pick_section.classList.remove('revealing');
+    pick_status.classList.remove('done');
     slots_actions.classList.remove('show');
     [result_oracle, slots_oracle].forEach(box => { box.hidden = true; box.replaceChildren(); });
     document.querySelectorAll('.fly_card').forEach(el => el.remove());

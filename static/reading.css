@@ -92,7 +92,9 @@ body:has(.reading) {
     font-size: 1.4rem;
     font-style: italic;
     color: var(--parchment);
+    transition: opacity 0.5s var(--ease-soft);
 }
+.pick_status.done { opacity: 0; } /* the flips are finished */
 
 .pick_controls {
     display: flex;
@@ -307,16 +309,25 @@ body:has(.reading) {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: clamp(0.8rem, 5vw, 3.5rem);
+    gap: clamp(0.4rem, 5vw, 3.5rem);
     margin-top: 1.5rem;
 }
 
+/* Same panel as the classic result cards. --sw stays the width of the card itself, so the padding is added on top. */
 .slot {
+    --slot_pad: clamp(0.25rem, 1.2vw, 1.4rem);
+    box-sizing: content-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: var(--sw);
-    transition: width 1.4s var(--ease-soft);
+    padding: var(--slot_pad) var(--slot_pad) calc(var(--slot_pad) + 0.3rem);
+    border: 1px solid rgba(230, 193, 120, 0.28);
+    border-top: 2px solid rgba(230, 193, 120, 0.7);
+    border-radius: 18px;
+    background: linear-gradient(165deg, rgba(155, 93, 229, 0.18), rgba(26, 11, 46, 0.55) 70%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 14px 34px rgba(0, 0, 0, 0.45);
+    transition: width 0.8s var(--ease-soft);
 }
 
 .slot .position_badge { margin-bottom: 0.8rem; }
@@ -351,7 +362,8 @@ body:has(.reading) {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transition: transform 1.5s var(--ease-soft);
+    transition: transform 0.9s var(--ease-soft);
+    will-change: transform;
 }
 .flipper.flipped { transform: rotateY(180deg); }
 
@@ -409,7 +421,7 @@ body:has(.reading) {
     text-align: center;
     opacity: 0;
     translate: 0 10px;
-    transition: opacity 1.2s var(--ease-out), translate 1.2s var(--ease-out);
+    transition: opacity 0.7s var(--ease-out), translate 0.7s var(--ease-out);
 }
 .slot.revealed .slot_caption { opacity: 1; translate: 0 0; }
 
@@ -445,14 +457,14 @@ body:has(.reading) {
 
 .pick_controls {
     max-height: 8rem;
-    transition: max-height 1.2s var(--ease-soft), margin 1.2s var(--ease-soft), opacity 0.8s var(--ease-soft);
+    transition: max-height 0.8s var(--ease-soft), margin 0.8s var(--ease-soft), opacity 0.5s var(--ease-soft);
 }
 
 #pick_section.revealing .mode_row {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.8s var(--ease-soft), visibility 0s 0.8s;
+    transition: opacity 0.5s var(--ease-soft), visibility 0s 0.5s;
 }
 
 #pick_section.revealing .pick_controls {
@@ -469,7 +481,7 @@ body:has(.reading) {
     visibility: hidden;
     overflow: hidden;
     pointer-events: none;
-    transition: height 1.4s var(--ease-soft), opacity 1s var(--ease-soft), visibility 0s 1.4s;
+    transition: height 0.8s var(--ease-soft), opacity 0.5s var(--ease-soft), visibility 0s 0.8s;
 }
 
 
