@@ -610,6 +610,25 @@ body:has(.reading) {
     .slot_well { animation: none; }
 }
 
+/* Pause animations: everything still appears, just instantly. Without this the paused
+   animations would sit on their first frame (invisible) and the cards would never show. */
+.calm .deck_grid.dealing .deck_card,
+.calm .deck_grid.arch.dealing .deck_card,
+.calm .result_card,
+.calm .oracle_reading,
+.calm .oracle_reading p,
+.calm .oracle_sign_off { animation: none !important; }
+.calm .result_card { opacity: 1; }
+.calm .deck_card,
+.calm .flipper,
+.calm .slot,
+.calm .slot_caption,
+.calm .pick_status,
+.calm .pick_controls,
+.calm .mode_row,
+.calm .deck_grid,
+.calm #slots_actions { transition: none !important; }
+
 /* AI Oracle: a talking crystal ball, with its words floating beside it */
 .oracle_reading {
     position: relative;

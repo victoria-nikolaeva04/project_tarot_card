@@ -22,7 +22,9 @@ const result_oracle = document.getElementById('result_oracle');
 const slots_oracle = document.getElementById('slots_oracle');
 
 const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(resolve => setTimeout(resolve, reduce_motion ? 0 : ms));
+// "Pause animations" (site.js sets .calm on <html>) skips the waits and flights, but the cards still appear
+const skip_motion = () => reduce_motion || document.documentElement.classList.contains('calm');
+const sleep = ms => new Promise(resolve => setTimeout(resolve, skip_motion() ? 0 : ms));
 const cover_src = deck_grid.querySelector('img').src;
 
 let picked = [];                      // classic mode picks
@@ -351,7 +353,7 @@ function place_card(card) {
         fill_slot(slot, card);
         if (slots.every(s => s.classList.contains('filled'))) begin_reveal();
     };
-    if (reduce_motion) { land(); return; }
+    if (skip_motion()) { land(); return; }
 
     const from = card.getBoundingClientRect();
     const to = well.getBoundingClientRect();
@@ -438,7 +440,7 @@ async function begin_reveal() {
     // Let the deck finish folding away before scrolling, so the page isn't moving while it reflows
     await sleep(850);
     if (run !== run_id) return;
-    slots_wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    slots_wrap.scrollIntoView({ behavior: skip_motion() ? 'auto' : 'smooth', block: 'center' });
 
     await sleep(600);
     for (let i = 0; i < slots.length; i++) {
