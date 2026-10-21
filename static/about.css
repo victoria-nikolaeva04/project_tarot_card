@@ -7,7 +7,7 @@
      4. The site (feature tiles)
      5. Why tarot (pull quote)
      6. The creator
-     7. The deck (history + elemental kingdoms)
+     7. The deck (text notes + elemental kingdoms)
      8. How it's built
      9. Responsive
    ========================================================= */
@@ -104,15 +104,37 @@
 
 
 /* ---------- The Site Section ---------- */
-.feature_grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(1.25rem, 3vw, 2.25rem);
+/* wide rows instead of a grid of small tiles */
+.feature_list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
     margin-top: 2.5rem;
 }
 
-.feature_tile { display: block; text-decoration: none; }
-.feature_tile--soon { opacity: 0.7; }
+.feature_tile {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: clamp(1rem, 3vw, 2rem);
+    padding: 1.4rem clamp(1.2rem, 3vw, 2rem);
+    text-decoration: none;
+}
+.feature_tile:nth-child(even) { margin-left: clamp(0rem, 6vw, 4rem); }
+.feature_tile:nth-child(odd)  { margin-right: clamp(0rem, 6vw, 4rem); }
+.feature_tile .item_num { margin-bottom: 0; }
+.feature_tile h3 { margin-top: 0; }
+.feature_tile p { margin: 0; }
+
+/* the Oracle tile reacts to hover like the others but is not a link */
+.feature_tile--static { grid-template-columns: auto 1fr; cursor: default; }
+
+.feature_arrow {
+    font-size: 1.8rem;
+    color: var(--gold);
+    transition: transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.feature_tile:hover .feature_arrow { transform: translateX(8px); }
 
 
 /* ---------- Why Tarot Section ---------- */
@@ -144,12 +166,35 @@
 
 /* ---------- The Deck Section ---------- */
 /* ---------- The Deck: History ---------- */
-.history_grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(1.25rem, 3vw, 2.25rem);
-    margin-top: 2.5rem;
+/* plain text, no cards: big numerals and ruled lines keep the focus on the words */
+.deck_notes {
+    max-width: 44rem;
+    margin-top: 2.2rem;
+    border-top: 1px solid rgba(230, 193, 120, 0.3);
 }
+.deck_note {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    column-gap: 1.5rem;
+    align-items: baseline;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid rgba(230, 193, 120, 0.3);
+}
+.deck_numeral {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--gold);
+    text-shadow: 0 0 16px rgba(230, 193, 120, 0.4);
+}
+.deck_note h3 {
+    margin: 0 0 0.3rem;
+    font-family: var(--font-body);
+    font-size: 1.7rem;
+    font-weight: 500;
+    color: var(--parchment);
+}
+.deck_note p { margin: 0; font-size: 1.15rem; color: var(--muted); }
 
 /* ---------- The Deck: Elemental Kingdoms ---------- */
 .symbolism_grid {
@@ -194,24 +239,19 @@
     color: var(--tint);
 }
 
-.suit_box:hover {
-    border-color: var(--tint);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 44px rgba(0, 0, 0, 0.55),
-                0 0 30px color-mix(in srgb, var(--tint) 40%, transparent);
-}
-
-
 /* ---------- Responsive ---------- */
-@media (max-width: 900px) {
-    .symbolism_grid { grid-template-columns: repeat(2, 1fr); }
-}
-
 @media (max-width: 760px) {
-    .feature_grid,
-    .history_grid { grid-template-columns: 1fr; }
+    .feature_tile:nth-child(n) { margin-inline: 0; }
+    .feature_arrow { display: none; }
+    .feature_tile { grid-template-columns: auto 1fr; }
+    .deck_note { grid-template-columns: 3rem 1fr; column-gap: 1rem; }
     .creator { grid-template-columns: 1fr; justify-items: center; }
     .tech_flow { flex-direction: column; }
     .flow_arrow { transform: rotate(90deg); }
+}
+
+@media (max-width: 900px) {
+    .symbolism_grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 480px) {

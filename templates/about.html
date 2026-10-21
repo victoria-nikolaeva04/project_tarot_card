@@ -65,21 +65,29 @@
                 <p class="reveal" style="--i:1">You can draw a three-card spread for the past, the present and the future, read every meaning upright or reversed, or simply browse all seventy-eight cards at your own pace. Everything is designed to feel like a candlelit table: slow, calm and a little bit magical.</p>
             </div>
 
-            <div class="feature_grid">
-                <a class="feature_tile glass_card glass_card--lift reveal" data-reveal="scale" style="--i:1" href="{{ url_for('reading') }}">
+            <div class="feature_list">
+                <a class="feature_tile glass_card glass_card--lift reveal" data-reveal="left" style="--i:1" href="{{ url_for('reading') }}">
                     <span class="item_num" aria-hidden="true">✦</span>
-                    <h3>Card Reading</h3>
-                    <p>Choose three cards from the deck and read what each one has to say.</p>
+                    <div>
+                        <h3>Card Reading</h3>
+                        <p>Choose three cards from the deck and read what each one has to say.</p>
+                    </div>
+                    <span class="feature_arrow" aria-hidden="true">→</span>
                 </a>
-                <a class="feature_tile glass_card glass_card--lift reveal" data-reveal="scale" style="--i:2" href="{{ url_for('guide') }}">
+                <a class="feature_tile glass_card glass_card--lift reveal" data-reveal="right" style="--i:2" href="{{ url_for('guide') }}">
                     <span class="item_num" aria-hidden="true">☾</span>
-                    <h3>Card Dictionary</h3>
-                    <p>All 78 cards with upright and reversed meanings, searchable by name or suit.</p>
+                    <div>
+                        <h3>Card Dictionary</h3>
+                        <p>All 78 cards with upright and reversed meanings, searchable by name or suit.</p>
+                    </div>
+                    <span class="feature_arrow" aria-hidden="true">→</span>
                 </a>
-                <div class="feature_tile feature_tile--soon glass_card reveal" data-reveal="scale" style="--i:3">
+                <div class="feature_tile feature_tile--static glass_card glass_card--lift reveal" data-reveal="left" style="--i:3">
                     <span class="item_num" aria-hidden="true">✧</span>
-                    <h3>AI Oracle</h3>
-                    <p>Coming soon: ask a question and talk it through with the cards.</p>
+                    <div>
+                        <h3>AI Oracle</h3>
+                        <p>After you flip your cards, ask the Oracle to weave them into one story.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -115,21 +123,27 @@
                 <p class="reveal" data-reveal="right">First published by the Rider Company in the early twentieth century, the <strong>Rider-Waite-Smith</strong> deck is the foundation of modern Western tarot. It is the deck most readers learn on, and the one used throughout this site.</p>
             </div>
 
-            <div class="history_grid">
-                <div class="history_item glass_card glass_card--lift reveal" data-reveal="scale" style="--i:1">
-                    <span class="item_num" aria-hidden="true">I</span>
-                    <h3>Arthur E. Waite</h3>
-                    <p>Designed the symbolic schemas, alignments and occult frameworks behind the deck.</p>
+            <div class="deck_notes">
+                <div class="deck_note reveal" data-reveal="right" style="--i:1">
+                    <span class="deck_numeral" aria-hidden="true">I</span>
+                    <div>
+                        <h3>Arthur E. Waite</h3>
+                        <p>Designed the symbolic schemas, alignments and occult frameworks behind the deck.</p>
+                    </div>
                 </div>
-                <div class="history_item glass_card glass_card--lift reveal" data-reveal="scale" style="--i:2">
-                    <span class="item_num" aria-hidden="true">II</span>
-                    <h3>Pamela C. Smith</h3>
-                    <p>Painted all 78 designs, and was the first to give every Minor Arcana card a full scene.</p>
+                <div class="deck_note reveal" data-reveal="right" style="--i:2">
+                    <span class="deck_numeral" aria-hidden="true">II</span>
+                    <div>
+                        <h3>Pamela C. Smith</h3>
+                        <p>Painted all 78 designs, and was the first to give every Minor Arcana card a full scene.</p>
+                    </div>
                 </div>
-                <div class="history_item glass_card glass_card--lift reveal" data-reveal="scale" style="--i:3">
-                    <span class="item_num" aria-hidden="true">III</span>
-                    <h3>Public domain</h3>
-                    <p>Released over a century ago, which is why its images are free to use and adapt.</p>
+                <div class="deck_note reveal" data-reveal="right" style="--i:3">
+                    <span class="deck_numeral" aria-hidden="true">III</span>
+                    <div>
+                        <h3>Public domain</h3>
+                        <p>Released over a century ago, which is why its images are free to use and adapt.</p>
+                    </div>
                 </div>
             </div>
 
@@ -146,25 +160,25 @@
             </div>
 
             <div class="symbolism_grid">
-                <div class="suit_box suit_wands glass_card glass_card--lift reveal" data-reveal="scale" style="--i:1">
+                <div class="suit_box suit_wands glass_card reveal" data-reveal="scale" style="--i:1">
                     <span class="suit_glyph" aria-hidden="true">🜂</span>
                     <h3>Wands</h3>
                     <strong>Fire</strong>
                     <p>Passion, creativity, willpower and ambition.</p>
                 </div>
-                <div class="suit_box suit_cups glass_card glass_card--lift reveal" data-reveal="scale" style="--i:2">
+                <div class="suit_box suit_cups glass_card reveal" data-reveal="scale" style="--i:2">
                     <span class="suit_glyph" aria-hidden="true">🜄</span>
                     <h3>Cups</h3>
                     <strong>Water</strong>
                     <p>Emotions, relationships, intuition and healing.</p>
                 </div>
-                <div class="suit_box suit_swords glass_card glass_card--lift reveal" data-reveal="scale" style="--i:3">
+                <div class="suit_box suit_swords glass_card reveal" data-reveal="scale" style="--i:3">
                     <span class="suit_glyph" aria-hidden="true">🜁</span>
                     <h3>Swords</h3>
                     <strong>Air</strong>
                     <p>Intellect, truth, conflict and clear communication.</p>
                 </div>
-                <div class="suit_box suit_pents glass_card glass_card--lift reveal" data-reveal="scale" style="--i:4">
+                <div class="suit_box suit_pents glass_card reveal" data-reveal="scale" style="--i:4">
                     <span class="suit_glyph" aria-hidden="true">🜃</span>
                     <h3>Pentacles</h3>
                     <strong>Earth</strong>
