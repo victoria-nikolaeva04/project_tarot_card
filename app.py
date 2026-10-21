@@ -1,5 +1,6 @@
 import os
 import re
+import threading
 import time
 from collections import defaultdict, deque
 from flask import Flask, jsonify, render_template, request
@@ -11,7 +12,7 @@ from google.genai import errors as genai_errors
 
 app = Flask(__name__)
 
-# Global Variable
+# Card data, loaded once at startup
 df = pd.read_csv('tarot_card_meanings.csv')
 df.columns = df.columns.str.strip()
 
@@ -34,26 +35,34 @@ card_names = set(df["card_name"])
 df["zodiac_sign"] = df["zodiac_sign"].fillna("No Sign")
 
 
+def _index_major_arcana_images():
+    """Map "hanged_man" -> "12_Hanged_Man.webp" for every file in the card image folder."""
+    index = {}
+    if os.path.exists(cards_directory):
+        for filename in os.listdir(cards_directory):
+            stem = os.path.splitext(filename)[0].lower()
+            # Strip the "00_" number so the stem matches the cleaned card name
+            index.setdefault(re.sub(r"^\d+_", "", stem), filename)
+    return index
+
+
+major_arcana_images = _index_major_arcana_images()
+
+
 def get_image_filename(card_name):
-    # Minor Arcana: "Ace of Cups" -> "Cups01.jpg"
+    # Minor Arcana: "Ace of Cups" -> "Cups01.webp"
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
     if match and match.group(1) in number_rank and match.group(2) in suit_prefix:
         rank, suit = match.groups()
         return f"{suit_prefix[suit]}{number_rank[rank]:02d}.webp"
 
-    # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.jpg"
+    # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.webp"
     name_clean = re.sub(r"^The\s+", "", card_name)
     name_clean = re.sub(r"\s+", "_", name_clean).lower()
 
-    if os.path.exists(cards_directory):
-        for filename in os.listdir(cards_directory):
-            stem = os.path.splitext(filename)[0].lower()
-            # Strip the "00_" number before comparison
-            if re.sub(r"^\d+_", "", stem) == name_clean:
-                return filename
-
     # Default fallback
-    return "Cover.webp"
+    return major_arcana_images.get(name_clean, "Cover.webp")
+
 
 # Convert dataset into records and pre-calculate all image filenames
 data_records = df.to_dict(orient='records')
@@ -106,16 +115,23 @@ ORACLE_ERRORS = {
 RATE_LIMIT = 4        # readings
 RATE_WINDOW = 60      # seconds
 recent_readings = defaultdict(deque)
+_recent_readings_lock = threading.Lock()
+_SWEEP_THRESHOLD = 1000   # tracked visitors before idle ones are dropped, so memory stays bounded
 
 def too_many_readings(visitor):
+    """Return 0 and record the reading if allowed, else the seconds until the visitor may retry."""
     now = time.monotonic()
-    history = recent_readings[visitor]
-    while history and now - history[0] > RATE_WINDOW:
-        history.popleft()
-    if len(history) >= RATE_LIMIT:
-        return int(RATE_WINDOW - (now - history[0])) + 1
-    history.append(now)
-    return 0
+    with _recent_readings_lock:
+        if len(recent_readings) > _SWEEP_THRESHOLD:
+            for key in [k for k, h in recent_readings.items() if not h or now - h[-1] > RATE_WINDOW]:
+                del recent_readings[key]
+        history = recent_readings[visitor]
+        while history and now - history[0] > RATE_WINDOW:
+            history.popleft()
+        if len(history) >= RATE_LIMIT:
+            return int(RATE_WINDOW - (now - history[0])) + 1
+        history.append(now)
+        return 0
 
 def classify_oracle_error(error):
     if isinstance(error, EmptyReading):
@@ -131,22 +147,38 @@ def classify_oracle_error(error):
         }.get(error.code, 'generic')
     return 'generic'
 
+# Errors worth a full traceback in the logs (the rest are expected, user-facing conditions)
+UNEXPECTED_ORACLE_ERRORS = frozenset({'generic', 'rumble', 'locked', 'missing'})
+
+def are_valid_picks(cards):
+    return (
+        isinstance(cards, list) and len(cards) == 3
+        and all(
+            isinstance(c, dict) and isinstance(c.get('name'), str) and c['name'] in card_names
+            for c in cards
+        )
+    )
+
+def oracle_error_body(info):
+    body = {"error": info["message"]}
+    if "sign" in info:
+        body.update(sign=info["sign"], aside=info["aside"])
+    return body
+
 # AI Oracle: interprets the three cards picked on the reading page
 @app.route('/oracle', methods=['POST'])
 def oracle():
-    cards = (request.get_json(silent=True) or {}).get('cards')
-    valid = (
-        isinstance(cards, list) and len(cards) == 3
-        and all(isinstance(c, dict) and c.get('name') in card_names for c in cards)
-    )
-    if not valid:
+    payload = request.get_json(silent=True)
+    cards = payload.get('cards') if isinstance(payload, dict) else None
+    if not are_valid_picks(cards):
         return jsonify(error="Pick exactly three valid cards."), 400
 
-    retry_after = too_many_readings(request.remote_addr)
+    visitor = request.remote_addr
+    retry_after = too_many_readings(visitor)
     if retry_after:
-        log_oracle_request(request.remote_addr, cards, 'slowdown', time.time())
+        log_oracle_request(visitor, cards, 'slowdown', time.time())
         info = ORACLE_ERRORS['slowdown']
-        response = jsonify(error=info["message"], sign=info["sign"], aside=info["aside"])
+        response = jsonify(oracle_error_body(info))
         response.headers['Retry-After'] = str(retry_after)
         return response, info["status"]
 
@@ -155,17 +187,14 @@ def oracle():
     started = time.time()
     try:
         reading = read_tarot_reading(picks, stats)
-        log_oracle_request(request.remote_addr, picks, 'ok', started, stats)
+        log_oracle_request(visitor, picks, 'ok', started, stats)
         return jsonify(reading=reading)
     except Exception as error:
         kind = classify_oracle_error(error)
-        log_oracle_request(request.remote_addr, picks, kind, started, stats, error)
+        log_oracle_request(visitor, picks, kind, started, stats, error)
+        app.logger.warning("Oracle failed (%s): %s", kind, error, exc_info=kind in UNEXPECTED_ORACLE_ERRORS)
         info = ORACLE_ERRORS[kind]
-        app.logger.warning("Oracle failed (%s): %s", kind, error, exc_info=kind in ('generic', 'rumble', 'locked', 'missing'))
-        body = {"error": info["message"]}
-        if "sign" in info:
-            body.update(sign=info["sign"], aside=info["aside"])
-        return jsonify(body), info["status"]
+        return jsonify(oracle_error_body(info)), info["status"]
 
 # About Page
 @app.route('/about')

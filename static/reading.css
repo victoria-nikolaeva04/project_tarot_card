@@ -202,6 +202,9 @@ body:has(.reading) {
 }
 
 /* Cards drop in one row at a time */
+/* Keep the server-rendered deck hidden until reading.js starts the deal, so it isn't painted twice */
+.js .deck_grid:not(.dealing) .deck_card { opacity: 0; }
+
 .deck_grid.dealing .deck_card {
     animation: deal-in 0.9s var(--ease-out) backwards;
     animation-delay: calc(var(--row, 0) * 110ms);

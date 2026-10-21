@@ -551,7 +551,7 @@ body {
     padding: 0;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: var(--void); }
 
 body {
     min-height: 100vh;
@@ -559,7 +559,7 @@ body {
     font-size: 1.15rem;
     line-height: 1.65;
     color: var(--ink);
-    background: var(--void);
+    background: transparent; /* the colour lives on html, so the fixed .sky shows above it */
     overflow-x: hidden;
 }
 
