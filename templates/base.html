@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename=page_css) }}">
+    <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+    <a class="skip_link" href="#main">Skip to main content</a>
+    <div class="sky" aria-hidden="true">
+        <div class="velvet"></div>
+        <div class="stars stars--small"></div>
+        <div class="stars stars--large"></div>
+    </div>
+
+    <div class="scroll_progress" aria-hidden="true"></div>
+
+    <nav class="nav_bar" aria-label="Primary">
+        <a class="nav_brand" href="{{ url_for('home') }}">☾ Arcana Noctis</a>
+        <div class="nav_links">
+            {% for page, label in [('home', 'Home'), ('reading', 'Daily Reading'), ('guide', 'Arcana Guide'), ('about', 'About')] -%}
+            <a href="{{ url_for(page) }}"{% if page == nav_active %} aria-current="page"{% endif %}>{{ label }}</a>
+            {% endfor -%}
+        </div>
+    </nav>
+
+    <main id="main" class="{{ main_class }}" tabindex="-1">
+{% block content %}{% endblock %}
+    </main>
+
+    {#- On the landing page the "Learn" links are same-page anchors -#}
+    {% set learn_base = '' if nav_active == 'home' else url_for('home') %}
+    <footer class="site_footer site_footer--full">
+        <div class="footer_inner">
+            <div class="footer_brand reveal" data-reveal="fade">
+                <a class="nav_brand" href="{{ url_for('home') }}">☾ Arcana Noctis</a>
+                <p>Whispers from the velvet dark.</p>
+            </div>
+            <nav class="footer_col reveal" data-reveal="fade" style="--i:1" aria-label="Explore">
+                <h2>Explore</h2>
+                <a href="{{ url_for('reading') }}">Daily Reading</a>
+                <a href="{{ url_for('guide') }}">Arcana Guide</a>
+                <a href="{{ url_for('about') }}">About</a>
+            </nav>
+            <nav class="footer_col reveal" data-reveal="fade" style="--i:2" aria-label="Learn">
+                <h2>Learn</h2>
+                <a href="{{ learn_base }}#what-is-tarot">What is Tarot?</a>
+                <a href="{{ learn_base }}#menu">What We Have</a>
+                <a href="{{ learn_base }}#help">Getting Started</a>
+            </nav>
+        </div>
+        <p class="footer_col reveal" data-reveal="fade" style="--i:3"><a href="---">Created by Victoria</a></p>
+        <div class="calm_wrap">
+            <button type="button" class="calm_toggle" id="calm-toggle" aria-pressed="false">Pause animations</button>
+        </div>
+        <p class="footer_copy">✦ The cards reflect, they do not decide ✦</p>
+    </footer>
+{% block after_footer %}{% endblock %}
+    <script src="{{ url_for('static', filename='site.js') }}"></script>
+{%- block scripts %}{% endblock %}
+</body>
+</html>
