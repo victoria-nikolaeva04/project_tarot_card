@@ -6,7 +6,6 @@
 
 {% block content %}
 
-        <!-- Header, with hanging pendants -->
         <header class="guide_hero">
             <div class="pendants" aria-hidden="true">
                 <div class="pendant" style="--x:3%; --len:300px; --s:6.5s; --d:-1s; --o:0px; --cs:2.2rem"><i class="string"></i><span class="charm charm--moon"></span></div>
@@ -33,7 +32,6 @@
                 <input type="text" id="global_search" class="search_input" placeholder="Find your card..." aria-label="Search cards" autocomplete="off">
             </div>
 
-            <!-- Category Tabs -->
             <div class="tabs_container reveal" data-reveal="fade" style="--i:1">
                 <button class="tab_btn active" data_category="all">All Cards</button>
                 <button class="tab_btn" data_category="major">Major Arcana</button>
@@ -67,7 +65,6 @@
                          alt="{{ card.card_name }}"
                          loading="lazy">
 
-                    <!-- Flip Card Button -->
                     <div>
                         <button class="flip_btn" type="button">Flip Position</button>
                     </div>
@@ -94,7 +91,6 @@
 
         <br>
 
-        <!-- Candles lining the footer -->
         <div class="shelf" aria-hidden="true">
             <div class="shelf_scene">
                 <div class="candle" style="--w:26px; --h:110px; --dur:2.4s; --delay:-.4s;  left:12%; bottom:0;">
@@ -117,7 +113,6 @@
 {% endblock %}
 
 {% block after_footer %}
-    <!-- Card detail pop-up -->
     <div class="card_modal" id="card_modal" hidden>
         <div class="modal_backdrop" data-close></div>
         <div class="modal_panel" role="dialog" aria-modal="true" aria-labelledby="modal_title">
@@ -161,6 +156,5 @@
 {% endblock %}
 
 {% block scripts %}
-    <!-- Filter/Searchbar JS Script -->
     <script src="{{ url_for('static', filename='guide.js') }}"></script>
 {% endblock %}

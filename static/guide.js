@@ -1,4 +1,3 @@
-// Filter/Searchbar JS Script
 const search_input = document.getElementById('global_search');
 const tab_buttons = document.querySelectorAll('.tab_btn');
 const card_boxes = document.querySelectorAll('.card_box');
@@ -19,7 +18,6 @@ function apply_filters() {
         const sign = card.getAttribute('data_sign');
         const meanings = card.getAttribute('data_meanings');
 
-        // Text Search Check
         const matches_search = word_pattern.test(name) ||
                               word_pattern.test(arcana) ||
                               word_pattern.test(suit) ||
@@ -27,7 +25,6 @@ function apply_filters() {
                               word_pattern.test(sign) ||
                               word_pattern.test(meanings);
 
-        // Tab Filter Check
         let matches_category = false;
         if (active_category === 'all') {
             matches_category = true;
@@ -45,10 +42,8 @@ function apply_filters() {
     });
 }
 
-// Search Input Event
 search_input.addEventListener('input', apply_filters);
 
-// Category Tab Clicking Event
 tab_buttons.forEach(tab => {
     tab.addEventListener('click', () => {
         // clicking the filter that is already on (the one showing an x) turns it off
@@ -68,7 +63,6 @@ tab_buttons.forEach(tab => {
 });
 
 
-// Flip Position: Invert the card image and swap upright/reversed meaning
 card_boxes.forEach(card => {
     const flip_btn = card.querySelector('.flip_btn');
     const img = card.querySelector('.card_img');
@@ -83,7 +77,6 @@ card_boxes.forEach(card => {
     });
 });
 
-// Card pop-up: open on card click, fill from the card's data attributes
 const modal = document.getElementById('card_modal');
 const modal_img = document.getElementById('modal_img');
 const modal_sparkles = document.getElementById('modal_sparkles');
@@ -127,7 +120,6 @@ function close_modal() {
     if (previously_focused) previously_focused.focus();
 }
 
-// Floating sparkles around the pop-up
 for (let i = 0; i < 28; i++) {
     const sparkle = document.createElement('i');
     s.className = 'sparkle';

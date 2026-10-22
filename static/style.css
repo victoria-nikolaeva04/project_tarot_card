@@ -210,7 +210,6 @@
 .badge_earth { background: #c6f6d5; color: #276749; }
 .badge_none  { background: #e2e8f0; color: #475569; }
 
-/* --- Reading page --- */
 .pick_status {
     font-size: 18px;
     color: #2c3e50;
@@ -273,7 +272,6 @@
     transform: translateY(-8px);
 }
 
-/* Once 3 are picked, dim the rest of the deck */
 .deck_full .deck_card:not(.selected) {
     opacity: 0.4;
     cursor: default;
@@ -411,11 +409,6 @@
     }
 }
 
-/* =========================================================
-   ARCANA NOCTIS · Mystical tarot theme
-   Velvet, candlelight, moons, smoke & crystal glass
-   ========================================================= */
-
 :root {
     --void: #0b0614;
     --velvet-deep: #1a0b2e;
@@ -457,7 +450,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ---------- Backdrop: velvet drapes + starfield ---------- */
 .sky {
     position: fixed;
     inset: 0;
@@ -507,7 +499,6 @@ body {
     animation: twinkle 7s ease-in-out infinite alternate-reverse;
 }
 
-/* ---------- Navigation ---------- */
 .nav_bar {
     position: sticky;
     top: 0;
@@ -571,7 +562,6 @@ body {
 .nav_links a:hover::after,
 .nav_links a:focus-visible::after { transform: translateX(-50%) scale(1); }
 
-/* ---------- Hero ---------- */
 .hero_section {
     display: grid;
     grid-template-columns: 1.05fr 1fr;
@@ -635,7 +625,6 @@ body {
     margin-top: 2.2rem;
 }
 
-/* ---------- Crystal-glass buttons ---------- */
 .btn {
     position: relative;
     isolation: isolate;
@@ -668,7 +657,6 @@ body {
                 border-color 0.35s ease;
 }
 
-/* swirling mist inside the glass, like the crystal ball */
 .btn::before {
     content: '';
     position: absolute;
@@ -685,7 +673,6 @@ body {
     transition: opacity 0.35s;
 }
 
-/* specular highlight on the glass */
 .btn::after {
     content: '';
     position: absolute;
@@ -734,7 +721,6 @@ body {
     animation: twinkle 2.4s ease-in-out infinite alternate;
 }
 
-/* Candles */
 .candle {
     position: absolute;
     z-index: 1;
@@ -777,7 +763,6 @@ body {
     animation-delay: var(--delay);
 }
 
-/* blue base of the flame */
 .flame::before {
     content: '';
     position: absolute;
@@ -814,7 +799,6 @@ body {
         0 0 24px rgba(255, 170, 80, 0.12);
 }
 
-/* lit wax pool on top */
 .wax::before {
     content: '';
     position: absolute;
@@ -826,7 +810,6 @@ body {
     background: radial-gradient(ellipse at center, #ffd9a0 0%, #c48bf0 45%, #7b3cc4 100%);
 }
 
-/* a wax drip */
 .wax::after {
     content: '';
     position: absolute;
@@ -838,8 +821,6 @@ body {
     background: linear-gradient(90deg, #8d4fd6, #b47ff0);
 }
 
-/* pulse via opacity (compositor-only) instead of animating filter on the whole ball */
-/* ---------- Footer ---------- */
 .site_footer {
     padding: 2rem 1rem 3rem;
     text-align: center;
@@ -850,9 +831,6 @@ body {
     border-top: 1px solid rgba(230, 193, 120, 0.12);
 }
 
-/* =========================================================
-   Keyframes
-   ========================================================= */
 @keyframes flicker {
     0%, 100% { transform: scale(1, 1) rotate(-1deg); }
     12%      { transform: scale(0.94, 1.1) rotate(2deg) skewX(2deg); }
@@ -896,9 +874,6 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================================================
-   Responsive
-   ========================================================= */
 @media (max-width: 960px) {
     .hero_section {
         grid-template-columns: 1fr;
@@ -921,7 +896,6 @@ body {
     .btn { width: 100%; }
 }
 
-/* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -934,23 +908,14 @@ body {
     html { scroll-behavior: auto; }
 }
 
-/* =========================================================
-   Shared site components
-   Used by the landing page and the about page (page-specific
-   styles live in landing.css / about.css, behavior in site.js)
-   ========================================================= */
-
-/* ---------- Page base ---------- */
 body:has(.landing, .about) { margin: 0; }
 body:has(.landing, .about) .nav_bar { margin-bottom: 0; }
 
 /* anchors land below the sticky nav */
 section[id] { scroll-margin-top: 90px; }
 
-/* comfortable tap targets in the nav */
 .nav_links a { padding: 0.55rem 0; }
 
-/* ---------- Scroll progress hairline ---------- */
 .scroll_progress {
     position: fixed;
     top: 0;
@@ -965,7 +930,6 @@ section[id] { scroll-margin-top: 90px; }
     box-shadow: 0 0 10px rgba(230, 193, 120, 0.6);
 }
 
-/* ---------- Section heads ---------- */
 .section_eyebrow {
     display: block;
     margin-bottom: 0.6rem;
@@ -985,7 +949,6 @@ section[id] { scroll-margin-top: 90px; }
     color: var(--parchment);
 }
 
-/* ---------- Section divider (draws itself) ---------- */
 .sec_divider {
     display: flex;
     align-items: center;
@@ -1016,7 +979,6 @@ section[id] { scroll-margin-top: 90px; }
 @keyframes draw     { to { transform: scaleX(1); } }
 @keyframes spark-in { to { opacity: 1; scale: 1; rotate: 0deg; } }
 
-/* ---------- Glass card ---------- */
 .glass_card {
     position: relative;
     padding: 2rem 1.6rem 1.8rem;
@@ -1028,21 +990,18 @@ section[id] { scroll-margin-top: 90px; }
     transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s, box-shadow 0.4s;
 }
 
-/* small cards lift on hover */
 .glass_card--lift:hover {
     transform: translateY(-8px);
     border-color: rgba(230, 193, 120, 0.6);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 20px 44px rgba(0, 0, 0, 0.55), 0 0 30px rgba(155, 93, 229, 0.35);
 }
 
-/* ---------- Stats (counted up on scroll) ---------- */
 .stats { display: flex; flex-wrap: wrap; gap: 2.5rem; margin: 2rem 0; }
 .stats div { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .stats div:hover { transform: translateY(-4px); }
 .stats dt { font-family: var(--font-body); font-size: 2.4rem; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; }
 .stats dd { font-family: var(--font-head); font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); }
 
-/* ---------- Scroll reveal (transform / opacity only) ---------- */
 .js .reveal { opacity: 0; }
 .js .reveal.in {
     animation: reveal-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -1059,7 +1018,6 @@ section[id] { scroll-margin-top: 90px; }
     to   { opacity: 1; translate: 0 0; scale: 1; }
 }
 
-/* ---------- Full footer ---------- */
 .site_footer--full {
     padding: 3.5rem clamp(1rem, 4vw, 3rem) 2rem;
     text-align: left;
@@ -1079,7 +1037,6 @@ section[id] { scroll-margin-top: 90px; }
 
 .footer_brand p { margin-top: 0.6rem; color: var(--muted); font-size: 1.05rem; }
 
-/* brand moon rocks on hover */
 .site_footer--full .nav_brand { display: inline-block; }
 .site_footer--full .nav_brand:hover { animation: moon-rock 1.4s ease-in-out infinite; }
 
@@ -1091,7 +1048,6 @@ section[id] { scroll-margin-top: 90px; }
 .footer_col { display: flex; flex-direction: column; gap: 0.5rem; }
 .footer_col h2 { margin-bottom: 0.4rem; font-family: var(--font-head); font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-deep); font-weight: 400; }
 
-/* links get an underline that grows */
 .footer_col a {
     width: fit-content;
     padding-bottom: 2px;
@@ -1115,7 +1071,6 @@ section[id] { scroll-margin-top: 90px; }
 
 .footer_copy { margin-top: 1rem; border: none; padding-top: 0; font-family: var(--font-head); font-size: 0.75rem; letter-spacing: 0.2em; text-align: center; }
 
-/* pause-animations control */
 .calm_wrap { display: flex; justify-content: center; margin: 1.4rem auto 0; }
 
 .calm_toggle {
@@ -1139,9 +1094,6 @@ section[id] { scroll-margin-top: 90px; }
     .footer_brand { grid-column: 1 / -1; }
 }
 
-/* ---------- Accessibility ---------- */
-
-/* skip link: first tab stop, visible on focus */
 .skip_link {
     position: fixed;
     top: 0.75rem;
@@ -1162,7 +1114,6 @@ section[id] { scroll-margin-top: 90px; }
 
 #main:focus { outline: none; }
 
-/* clear keyboard focus everywhere */
 .nav_bar a:focus-visible,
 .site_footer a:focus-visible,
 #main a:focus-visible,
@@ -1190,7 +1141,6 @@ section[id] { scroll-margin-top: 90px; }
     .sec_divider span { opacity: 1; scale: 1; rotate: 0deg; }
 }
 
-/* ---------- Hanging pendants (chains with moon & star charms) ---------- */
 .pendants {
     position: absolute;
     inset: 0 0 auto 0;
@@ -1248,7 +1198,6 @@ section[id] { scroll-margin-top: 90px; }
     transform: translateX(-0.35em) rotate(-20deg);
 }
 
-/* ---------- Footer candles ---------- */
 .shelf { position: relative; }
 
 .shelf_scene {
@@ -1264,7 +1213,6 @@ section[id] { scroll-margin-top: 90px; }
     .shelf_scene > .candle:nth-child(n+4) { display: none; }
 }
 
-/* off-white candles */
 .landing .wax, .about .wax {
     background: linear-gradient(90deg, #c9bfa9, #efe7d4 28%, #fffaf0 50%, #e8dec8 72%, #b9ae96);
     box-shadow: inset 0 14px 14px -8px rgba(255, 190, 110, 0.55), 0 0 24px rgba(255, 170, 80, 0.1);
@@ -1276,7 +1224,6 @@ section[id] { scroll-margin-top: 90px; }
     .pendant:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(8)):not(:nth-child(10)) { display: none; }
 }
 
-/* ---------- On/off toggles: a small x shows that clicking turns them off ---------- */
 .tab_btn:not([data_category="all"])::after,
 .whimsy_btn::after,
 .calm_toggle::after {

@@ -1,18 +1,5 @@
-/* =========================================================
-   Landing page styles
-   Sections follow the order of templates/index.html:
-     1. Page base
-     2. Hero (content, candles, scroll cue; pendants are shared)
-     3. What is Tarot (intro)
-     4. Help
-     5. Menu
-     6. Calm mode + reduced motion (landing-only parts)
-   ========================================================= */
-
-/* ---------- Page base ---------- */
 .landing { overflow: hidden; }
 
-/* ---------- Hero ---------- */
 .landing .hero_section {
     position: relative;
     display: flex;
@@ -45,7 +32,6 @@
     filter: none;
 }
 
-/* Headline words Rise in */
 .js .hero_content h1 .w {
     display: inline-block;
     opacity: 0;
@@ -53,7 +39,6 @@
     animation-delay: calc(0.25s + var(--w) * 0.09s);
 }
 
-/* Glowing Effect on "Illuminate" */
 .hero_content h1 .glow {
     color: #fff3d6;
     text-shadow: 0 0 12px rgba(255, 214, 140, 0.6), 0 0 32px rgba(230, 193, 120, 0.35);
@@ -81,7 +66,6 @@
 
 .landing .hero_buttons { justify-content: center; }
 
-/* Hero Candles */
 .hero_candles {
     position: absolute;
     left: clamp(6rem, 11vw, 11rem);
@@ -93,7 +77,6 @@
 
 .hero_candles .candle { position: absolute; }
 
-/* Parallax on-scroll */
 .landing .pendants     { translate: 0 calc(var(--hp, 0) * 50px); }
 .landing .hero_candles { translate: 0 calc(var(--hp, 0) * -30px); }
 
@@ -134,7 +117,6 @@
     .hero_candles .candle:nth-child(4) { display: none; }
 }
 
-/* ---------- What is Tarot Section ---------- */
 .intro {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -152,7 +134,6 @@
     color: var(--parchment);
 }
 
-/* Cards beside the Intro Text */
 .intro_side { display: flex; flex-direction: column; gap: 1.5rem; }
 
 .intro_cards { position: relative; width: min(310px, 80vw); height: 590px; margin: auto; }
@@ -226,7 +207,6 @@
     .intro_card { margin: 0; }
 }
 
-/* ---------- Help with Tarot Section ---------- */
 .help {
     max-width: 1000px;
     margin: 0 auto;
@@ -250,7 +230,6 @@
     list-style: none;
 }
 
-/* steps - stand out */
 .help_steps li {
     position: relative;
     padding: 2rem 1.6rem 1.8rem;
@@ -295,7 +274,6 @@
     .help_steps { grid-template-columns: 1fr; margin: 2rem 0; }
 }
 
-/* ---------- Menu Section ---------- */
 .menu {
     max-width: 1000px;
     margin: 0 auto;
@@ -383,8 +361,6 @@ a.menu_row:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px;
     .menu_desc { grid-column: 2; grid-row: 2; font-size: 1rem; }
     .menu_arrow { grid-row: 1; grid-column: 3; opacity: 0.6; transform: none; }
 }
-
-/* ---------- Calm mode + reduced motion (landing-only parts) ---------- */
 
 .calm .menu_row::after { animation: none !important; transform: scaleX(1) !important; }
 .calm .js .hero_content h1 .w,

@@ -1,4 +1,3 @@
-// Variables
 const MAX_PICKS = 3;
 const POSITIONS = ['Past', 'Present', 'Future'];
 const ARCH_HALF_SPAN = 72;  // degrees either side of the top of the arch
@@ -34,7 +33,6 @@ let slot_cards = [null, null, null];  // whimsy mode: the card in each spot
 let locked = false;                   // whimsy mode: the reveal has started
 let run_id = 0;                       // cancels a reveal that is still playing after a reset
 
-// Small DOM helpers
 function el(tag, class_name, text) {
     const node = document.createElement(tag);
     if (class_name) node.className = class_name;
@@ -44,7 +42,6 @@ function el(tag, class_name, text) {
 
 const roll_reversed = () => Math.random() < REVERSED_CHANCE;
 
-// Randomize the Deck
 function shuffle_deck() {
     const cards = Array.from(deck_grid.children);
     for (let i = cards.length - 1; i > 0; i--) {
@@ -54,7 +51,6 @@ function shuffle_deck() {
     cards.forEach(card => deck_grid.appendChild(card));
 }
 
-// Classic layout: the deck is dealt in row by row
 function clear_arch() {
     deck_grid.classList.remove('arch');
     deck_grid.style.height = '';
@@ -146,7 +142,6 @@ function update_status() {
     deck_grid.classList.toggle('deck_full', picked.length === MAX_PICKS);
 }
 
-// Pick / un-pick cards
 deck_grid.addEventListener('click', event => {
     const card = event.target.closest('.deck_card');
     if (!card) return;
@@ -166,7 +161,6 @@ deck_grid.addEventListener('click', event => {
     update_status();
 });
 
-// Highlighted key-point chips Converter
 function key_points(text) {
     const wrap = el('div', 'key_points');
     text.split(',').map(part => part.trim()).filter(Boolean).forEach(point => {
@@ -175,7 +169,6 @@ function key_points(text) {
     return wrap;
 }
 
-// Card name, orientation label and key points: shared by the classic results and the whimsy spots
 function card_caption(card_data, is_reversed) {
     const title = el('h3', 'card_title', card_data.name);
     const label = el('span', 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright'),
@@ -183,7 +176,6 @@ function card_caption(card_data, is_reversed) {
     return [title, label, key_points(is_reversed ? card_data.reversed : card_data.upright)];
 }
 
-// Fill a paragraph with text, bolding every mention of a drawn card's name
 function fill_with_bold_cards(paragraph, text, card_names) {
     // "The Star" needs its "The", otherwise plain words like "star" would turn bold
     const escaped = card_names.map(name =>
@@ -213,7 +205,6 @@ function offer_oracle(cards, reversed_flags, box) {
     box.hidden = false;
 }
 
-// The crystal ball sits beside the Oracle's words
 function make_crystal() {
     const crystal = document.createElement('div');
     crystal.className = 'crystal';
@@ -242,7 +233,6 @@ function finish_loading(box) {
     box.classList.remove('loading');
 }
 
-// AI Oracle: sends the picked cards to the server and shows the interpretation
 async function request_oracle(cards, reversed_flags, box) {
     const run = run_id;
     const eyebrow = el('span', 'section_eyebrow', 'The Oracle Speaks');
@@ -308,7 +298,6 @@ async function request_oracle(cards, reversed_flags, box) {
     }
 }
 
-// Results Shown
 function build_result(card, index, is_reversed) {
     const card_data = card.dataset;
 
@@ -328,7 +317,6 @@ reveal_btn.addEventListener('click', () => {
     result_grid.replaceChildren(...picked.map((card, i) => build_result(card, i, orientations[i])));
     pick_section.hidden = true;
     result_section.hidden = false;
-    // Stagger the Reveal Animation
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
@@ -336,9 +324,7 @@ reveal_btn.addEventListener('click', () => {
 });
 
 
-// ---------- Whimsy mode ----------
 
-// A picked card flies from the arch into the first empty shadow spot
 function place_card(card) {
     const index = slot_cards.indexOf(null);
     if (locked || index === -1 || card.classList.contains('placed')) return;
@@ -381,7 +367,6 @@ function place_card(card) {
         .catch(() => {}); // the flight is cancelled if the reading is reset mid-air
 }
 
-// Put a face-down card in the spot, ready to flip
 function fill_slot(slot, card) {
     const well = slot.querySelector('.slot_well');
     const card_data = card.dataset;
@@ -418,7 +403,6 @@ function clear_slot(slot) {
     slot.querySelector('.slot_caption').replaceChildren();
 }
 
-// Change your mind: send a placed card back to the arch
 function unplace(slot) {
     if (locked) return;
     const index = slots.indexOf(slot);
@@ -428,7 +412,6 @@ function unplace(slot) {
     update_status();
 }
 
-// All three spots are full: focus on them and flip the cards one by one
 async function begin_reveal() {
     if (locked) return;
     locked = true;

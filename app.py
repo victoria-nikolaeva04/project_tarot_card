@@ -12,7 +12,6 @@ from google.genai import errors as genai_errors
 
 app = Flask(__name__)
 
-# Card data, loaded once at startup
 cards_df = pd.read_csv('tarot_card_meanings.csv')
 cards_df.columns = cards_df.columns.str.strip()
 
@@ -50,38 +49,30 @@ major_arcana_images = _index_major_arcana_images()
 
 
 def get_image_filename(card_name):
-    # Minor Arcana: "Ace of Cups" -> "Cups01.webp"
     match = re.fullmatch(r"(\w+) of (\w+)", card_name)
     if match and match.group(1) in rank_number and match.group(2) in suit_prefix:
         rank, suit = match.groups()
         return f"{suit_prefix[suit]}{rank_number[rank]:02d}.webp"
 
-    # Major Arcana: "The Hanged Man" -> "12_Hanged_Man.webp"
     name_clean = re.sub(r"^The\s+", "", card_name)
     name_clean = re.sub(r"\s+", "_", name_clean).lower()
 
-    # Default fallback
     return major_arcana_images.get(name_clean, "Cover.webp")
 
 
-# Convert dataset into records and pre-calculate all image filenames
 data_records = cards_df.to_dict(orient='records')
 for record in data_records:
     record["image_file"] = get_image_filename(record["card_name"])
 
 
-# --- Website Navigation ---
-# Landing Page
 @app.route('/')
 def home():
     return render_template('index.html', tarot_cards = data_records)
 
-# Readings
 @app.route('/reading')
 def reading():
     return render_template('reading.html', tarot_cards = data_records)
 
-# Guide/Card Dictionary
 @app.route('/guide')
 def guide():
     return render_template('guide.html', tarot_cards = data_records)
@@ -112,8 +103,8 @@ ORACLE_ERRORS = {
 
 # Guardrail: each visitor gets a few readings per window, so one browser can't burn through the quota.
 # Kept in memory per server process; behind a proxy, make sure request.remote_addr is the visitor's address.
-RATE_LIMIT = 4        # readings
-RATE_WINDOW = 60      # seconds
+RATE_LIMIT = 4
+RATE_WINDOW = 60
 reading_times_by_visitor = defaultdict(deque)
 _reading_times_lock = threading.Lock()
 _SWEEP_THRESHOLD = 1000   # tracked visitors before idle ones are dropped, so memory stays bounded
@@ -167,7 +158,6 @@ def oracle_error_body(error_info):
         body.update(sign=error_info["sign"], aside=error_info["aside"])
     return body
 
-# AI Oracle: interprets the three cards picked on the reading page
 @app.route('/oracle', methods=['POST'])
 def oracle():
     payload = request.get_json(silent=True)
@@ -198,7 +188,6 @@ def oracle():
         error_info = ORACLE_ERRORS[kind]
         return jsonify(oracle_error_body(error_info)), error_info["status"]
 
-# About Page
 @app.route('/about')
 def about():
     return render_template('about.html')

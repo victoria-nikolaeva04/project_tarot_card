@@ -6,7 +6,6 @@
 
 {% block content %}
 
-        <!-- Header, with hanging pendants -->
         <header class="reading_hero">
             <div class="pendants" aria-hidden="true">
                 <div class="pendant" style="--x:5%; --len:200px; --s:6.0s; --d:-1.5s; --o:-12px; --cs:1.6rem"><i class="string"></i><span class="charm charm--star"></span></div>
@@ -27,9 +26,7 @@
         <div class="sec_divider line_reveal" aria-hidden="true"><span>✦</span></div>
 
         <div class="reading_section">
-            <!-- Step 1: pick three cards -->
             <section id="pick_section" aria-label="Choose your cards">
-                <!-- Display mode, kept apart from the reading actions below -->
                 <div class="mode_row">
                     <button type="button" id="whimsy_btn" class="whimsy_btn" aria-pressed="false">✦ Whimsy</button>
                 </div>
@@ -55,7 +52,6 @@
                     {% endfor %}
                 </div>
 
-                <!-- Whimsy mode: three shadowy spots the chosen cards travel into -->
                 <div class="slots" id="slots" hidden>
                     <div class="slot">
                         <span class="position_badge past">Past</span>
@@ -79,7 +75,6 @@
                 </div>
             </section>
 
-            <!-- Step 2: revealed spread -->
             <section id="result_section" aria-label="Your spread" hidden>
                 <div class="result_grid" id="result_grid"></div>
                 <div class="oracle_reading" id="result_oracle" hidden></div>
@@ -89,7 +84,6 @@
             </section>
         </div>
 
-        <!-- Candles lining the footer -->
         <div class="shelf" aria-hidden="true">
             <div class="shelf_scene">
                 <div class="candle" style="--w:26px; --h:110px; --dur:2.4s; --delay:-.4s;  left:12%; bottom:0;">

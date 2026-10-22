@@ -1,8 +1,6 @@
-// Landing page only: word-by-word headline and hero drift on scroll.
 (function () {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // ---- Headline ----
     var h1 = document.querySelector('.hero_content h1');
     if (h1) {
         var words = h1.textContent.trim().split(/\s+/);
@@ -12,7 +10,6 @@
         }).join(' ');
     }
 
-    // ---- Hero drift ----
     var hero = document.querySelector('.hero_section');
     if (!hero) return;
     var frame_queued = false;

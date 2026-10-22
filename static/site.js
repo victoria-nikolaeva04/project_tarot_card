@@ -1,9 +1,7 @@
-// Shared by pages: pause-animations toggle, scroll reveals, count-up stats, progress line.
 (function () {
     var reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var html_root = document.documentElement;
 
-    // ---- Pause-Animations toggle ----
     var calm_toggle = document.getElementById('calm-toggle');
     function set_calm(on, save) {
         html_root.classList.toggle('calm', on);
@@ -18,7 +16,6 @@
     set_calm(saved_calm === null ? reduce_motion : saved_calm === '1', false);
     if (calm_toggle) calm_toggle.addEventListener('click', function () { set_calm(!html_root.classList.contains('calm'), true); });
 
-    // ---- Reveal on Scroll  ----
     var reveal_items = document.querySelectorAll('.reveal, .line_reveal');
     if ('IntersectionObserver' in window) {
         var reveal_observer = new IntersectionObserver(function (entries) {
@@ -31,7 +28,6 @@
         reveal_items.forEach(function (el) { el.classList.add('in'); });
     }
 
-    // ---- Count-up Stats ----
     var counter_elements = document.querySelectorAll('[data-count]');
     function count_up(el) {
         var target = parseInt(el.getAttribute('data-count'), 10);
@@ -56,7 +52,6 @@
 
     if (reduce_motion) return;
 
-    // ---- Progress line ----
     var frame_queued = false;
 
     function update_scroll_progress() {
