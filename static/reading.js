@@ -1,8 +1,9 @@
-// Variables
 const MAX_PICKS = 3;
 const POSITIONS = ['Past', 'Present', 'Future'];
 const ARCH_HALF_SPAN = 72;  // degrees either side of the top of the arch
 const CARD_RATIO = 1.73;    // card height / width
+const ARCH_TOP_MARGIN = 36;  // px above the highest card of the arch
+const REVERSED_CHANCE = 0.25;
 
 const deck_grid = document.getElementById('deck_grid');
 const pick_section = document.getElementById('pick_section');
@@ -21,7 +22,9 @@ const result_oracle = document.getElementById('result_oracle');
 const slots_oracle = document.getElementById('slots_oracle');
 
 const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(resolve => setTimeout(resolve, reduce_motion ? 0 : ms));
+// "Pause animations" (site.js sets .calm on <html>) skips the waits and flights, but the cards still appear
+const skip_motion = () => reduce_motion || document.documentElement.classList.contains('calm');
+const sleep = ms => new Promise(resolve => setTimeout(resolve, skip_motion() ? 0 : ms));
 const cover_src = deck_grid.querySelector('img').src;
 
 let picked = [];                      // classic mode picks
@@ -30,7 +33,15 @@ let slot_cards = [null, null, null];  // whimsy mode: the card in each spot
 let locked = false;                   // whimsy mode: the reveal has started
 let run_id = 0;                       // cancels a reveal that is still playing after a reset
 
-// Randomize the Deck
+function el(tag, class_name, text) {
+    const node = document.createElement(tag);
+    if (class_name) node.className = class_name;
+    if (text !== undefined) node.textContent = text;
+    return node;
+}
+
+const roll_reversed = () => Math.random() < REVERSED_CHANCE;
+
 function shuffle_deck() {
     const cards = Array.from(deck_grid.children);
     for (let i = cards.length - 1; i > 0; i--) {
@@ -40,63 +51,63 @@ function shuffle_deck() {
     cards.forEach(card => deck_grid.appendChild(card));
 }
 
-// Classic layout: the deck is dealt in row by row
 function clear_arch() {
     deck_grid.classList.remove('arch');
     deck_grid.style.height = '';
     deck_grid.style.removeProperty('--cw');
     Array.from(deck_grid.children).forEach(card => {
-        ['--a', '--o', '--i'].forEach(p => card.style.removeProperty(p));
+        ['--a', '--o', '--i'].forEach(property => card.style.removeProperty(property));
         card.style.top = '';
         card.style.zIndex = '';
     });
 }
 
-// Whimsy layout: the deck fans out in an arch (extra rows on narrow screens)
+// Whimsy layout: the deck fans out in an arch (extra rows on narrow screens).
+// Sizes the cards and arch radius from the deck width, shares the cards between rows in proportion to
+// each row's radius, then sets each card's angle (--a), pivot distance (--o) and index (--i) as CSS variables.
 function layout_arch() {
     const cards = Array.from(deck_grid.children);
-    const n = cards.length;
+    const card_count = cards.length;
     deck_grid.classList.add('arch');
 
-    const W = deck_grid.clientWidth;
-    const rows = W < 560 ? 3 : W < 900 ? 2 : 1;
-    const A = ARCH_HALF_SPAN * Math.PI / 180;
+    const deck_width = deck_grid.clientWidth;
+    const rows = deck_width < 560 ? 3 : deck_width < 900 ? 2 : 1;
+    const half_span_rad = ARCH_HALF_SPAN * Math.PI / 180;
 
-    let cw = 70, R = 0;
+    let card_width = 70, arch_radius = 0;
     for (let k = 0; k < 2; k++) {
-        R = Math.min(640, (W / 2 - cw * 0.6) / Math.sin(A));
-        cw = Math.max(50, Math.min(92, R * 0.15));
+        arch_radius = Math.min(640, (deck_width / 2 - card_width * 0.6) / Math.sin(half_span_rad));
+        card_width = Math.max(50, Math.min(92, arch_radius * 0.15));
     }
-    const ch = cw * CARD_RATIO;
-    const gap = ch * 0.5;
-    const TOP = 36;
+    const card_height = card_width * CARD_RATIO;
+    const row_gap = card_height * 0.5;
 
-    const radii = Array.from({ length: rows }, (_, r) => R - r * gap);
-    const total = radii.reduce((a, b) => a + b, 0);
-    const counts = radii.map(r => Math.round(n * r / total));
-    counts[0] += n - counts.reduce((a, b) => a + b, 0);
+    const row_radii = Array.from({ length: rows }, (_, row) => arch_radius - row * row_gap);
+    const total_radius = row_radii.reduce((a, b) => a + b, 0);
+    const cards_per_row = row_radii.map(row => Math.round(card_count * row / total_radius));
+    cards_per_row[0] += card_count - cards_per_row.reduce((a, b) => a + b, 0);
 
-    let i = 0;
-    counts.forEach((count, r) => {
-        for (let j = 0; j < count; j++, i++) {
-            const t = count > 1 ? j / (count - 1) : 0.5;
-            const angle = -ARCH_HALF_SPAN + 2 * ARCH_HALF_SPAN * t;
-            const card = cards[i];
+    let card_index = 0;
+    cards_per_row.forEach((count, row) => {
+        for (let index_in_row = 0; index_in_row < count; index_in_row++, card_index++) {
+            const position_along_arch = count > 1 ? index_in_row / (count - 1) : 0.5;
+            const angle = -ARCH_HALF_SPAN + 2 * ARCH_HALF_SPAN * position_along_arch;
+            const card = cards[card_index];
             card.style.setProperty('--a', angle.toFixed(2) + 'deg');
-            card.style.setProperty('--o', (R - r * gap).toFixed(1) + 'px');
-            card.style.setProperty('--i', i);
-            card.style.top = (TOP + r * gap) + 'px';
-            card.style.zIndex = r * 100 + j;
+            card.style.setProperty('--o', (arch_radius - row * row_gap).toFixed(1) + 'px');
+            card.style.setProperty('--i', card_index);
+            card.style.top = (ARCH_TOP_MARGIN + row * row_gap) + 'px';
+            card.style.zIndex = row * 100 + index_in_row;
         }
     });
 
     let height = 0;
-    radii.forEach((radius, r) => {
-        const edge = TOP + R - (radius - ch) * Math.cos(A) + (cw / 2) * Math.sin(A);
-        const middle = TOP + r * gap + ch;
+    row_radii.forEach((radius, row) => {
+        const edge = ARCH_TOP_MARGIN + arch_radius - (radius - card_height) * Math.cos(half_span_rad) + (card_width / 2) * Math.sin(half_span_rad);
+        const middle = ARCH_TOP_MARGIN + row * row_gap + card_height;
         height = Math.max(height, edge, middle);
     });
-    deck_grid.style.setProperty('--cw', cw.toFixed(1) + 'px');
+    deck_grid.style.setProperty('--cw', card_width.toFixed(1) + 'px');
     deck_grid.style.height = (height + 24) + 'px';
 }
 
@@ -131,7 +142,6 @@ function update_status() {
     deck_grid.classList.toggle('deck_full', picked.length === MAX_PICKS);
 }
 
-// Pick / un-pick cards
 deck_grid.addEventListener('click', event => {
     const card = event.target.closest('.deck_card');
     if (!card) return;
@@ -151,21 +161,22 @@ deck_grid.addEventListener('click', event => {
     update_status();
 });
 
-// Highlighted key-point chips Converter
 function key_points(text) {
-    const wrap = document.createElement('div');
-    wrap.className = 'key_points';
-    text.split(',').map(s => s.trim()).filter(Boolean).forEach(point => {
-        const chip = document.createElement('span');
-        chip.className = 'key_point';
-        chip.textContent = point;
-        wrap.appendChild(chip);
+    const wrap = el('div', 'key_points');
+    text.split(',').map(part => part.trim()).filter(Boolean).forEach(point => {
+        wrap.appendChild(el('span', 'key_point', point));
     });
     return wrap;
 }
 
-// Fill a paragraph with text, bolding every mention of a drawn card's name
-function fill_with_bold_cards(p, text, card_names) {
+function card_caption(card_data, is_reversed) {
+    const title = el('h3', 'card_title', card_data.name);
+    const label = el('span', 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright'),
+                     is_reversed ? 'Reversed' : 'Upright');
+    return [title, label, key_points(is_reversed ? card_data.reversed : card_data.upright)];
+}
+
+function fill_with_bold_cards(paragraph, text, card_names) {
     // "The Star" needs its "The", otherwise plain words like "star" would turn bold
     const escaped = card_names.map(name =>
         name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
@@ -177,32 +188,23 @@ function fill_with_bold_cards(p, text, card_names) {
             const proper = card_names.find(name =>
                 name.toLowerCase() === part.toLowerCase().replace(/\s+/g, ' '));
             strong.textContent = proper || part;
-            p.appendChild(strong);
+            paragraph.appendChild(strong);
         } else if (part) {
-            p.appendChild(document.createTextNode(part));
+            paragraph.appendChild(document.createTextNode(part));
         }
     });
 }
 
 // AI Oracle: waits for a button press so tokens are only spent when the user asks
-function offer_oracle(cards, is_reversed_list, box) {
-    const eyebrow = document.createElement('span');
-    eyebrow.className = 'section_eyebrow';
-    eyebrow.textContent = 'The Oracle Awaits';
-    const status = document.createElement('p');
-    status.className = 'oracle_status';
-    status.textContent = 'Would you like the Oracle to interpret your cards?';
-    const ask = document.createElement('button');
-    ask.type = 'button';
-    ask.className = 'draw-btn oracle_retry';
-    ask.textContent = 'Ask the Oracle';
-    ask.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
-    box.classList.remove('loading');
+function offer_oracle(cards, reversed_flags, box) {
+    const eyebrow = el('span', 'section_eyebrow', 'The Oracle Awaits');
+    const status = el('p', 'oracle_status', 'Would you like the Oracle to interpret your cards?');
+    const ask = oracle_button('Ask the Oracle', cards, reversed_flags, box);
+    finish_loading(box);
     box.replaceChildren(make_crystal(), oracle_text(eyebrow, status, ask));
     box.hidden = false;
 }
 
-// The crystal ball sits beside the Oracle's words
 function make_crystal() {
     const crystal = document.createElement('div');
     crystal.className = 'crystal';
@@ -214,29 +216,33 @@ function make_crystal() {
 }
 
 function oracle_text(...children) {
-    const text = document.createElement('div');
-    text.className = 'oracle_text';
+    const text = el('div', 'oracle_text');
     text.append(...children);
     return text;
 }
 
-// AI Oracle: sends the picked cards to the server and shows the interpretation
-async function request_oracle(cards, is_reversed_list, box) {
+function oracle_button(label, cards, reversed_flags, box) {
+    const button = el('button', 'draw-btn oracle_retry', label);
+    button.type = 'button';
+    button.addEventListener('click', () => request_oracle(cards, reversed_flags, box));
+    return button;
+}
+
+function finish_loading(box) {
+    box.removeAttribute('aria-busy');
+    box.classList.remove('loading');
+}
+
+async function request_oracle(cards, reversed_flags, box) {
     const run = run_id;
-    const eyebrow = document.createElement('span');
-    eyebrow.className = 'section_eyebrow';
-    eyebrow.textContent = 'The Oracle Speaks';
-    const title = document.createElement('h3');
-    title.textContent = '';
-    const divider = document.createElement('div');
-    divider.className = 'oracle_divider';
+    const eyebrow = el('span', 'section_eyebrow', 'The Oracle Speaks');
+    const title = el('h3', '', '');
+    const divider = el('div', 'oracle_divider');
     divider.setAttribute('aria-hidden', 'true');
     divider.innerHTML = '<span>✦</span>';
     const crystal = make_crystal();
     const head = [eyebrow, title, divider];
-    const status = document.createElement('p');
-    status.className = 'oracle_status';
-    status.textContent = 'The Oracle is gazing into your cards...';
+    const status = el('p', 'oracle_status', 'The Oracle is gazing into your cards...');
     box.replaceChildren(crystal, oracle_text(...head, status));
     box.classList.add('loading');
     box.hidden = false;
@@ -249,7 +255,7 @@ async function request_oracle(cards, is_reversed_list, box) {
             body: JSON.stringify({
                 cards: cards.map((card, i) => ({
                     name: card.dataset.name,
-                    reversed: is_reversed_list[i]
+                    reversed: reversed_flags[i]
                 }))
             })
         });
@@ -262,80 +268,55 @@ async function request_oracle(cards, is_reversed_list, box) {
             throw failure;
         }
 
-        const paragraphs = data.reading.split(/\n\s*\n/).map((text, i) => {
-            const p = document.createElement('p');
-            p.style.setProperty('--i', i);
-            fill_with_bold_cards(p, text.trim(), cards.map(card => card.dataset.name));
-            return p;
+        const paragraphs = data.reading.split(/\n\s*\n/).map((text, index) => {
+            const paragraph = el('p');
+            paragraph.style.setProperty('--i', index);
+            fill_with_bold_cards(paragraph, text.trim(), cards.map(card => card.dataset.name));
+            return paragraph;
         });
-        const sign_off = document.createElement('span');
-        sign_off.className = 'oracle_sign_off';
+        const sign_off = el('span', 'oracle_sign_off', '☾ ✦ ☽');
         sign_off.setAttribute('aria-hidden', 'true');
-        sign_off.textContent = '☾ ✦ ☽';
         sign_off.style.setProperty('--i', paragraphs.length);
         paragraphs.push(sign_off);
-        box.removeAttribute('aria-busy');
-        box.classList.remove('loading');
+        finish_loading(box);
         box.replaceChildren(crystal, oracle_text(...head, ...paragraphs));
     } catch (error) {
         if (run !== run_id) return;
-        box.removeAttribute('aria-busy');
-        box.classList.remove('loading');
+        finish_loading(box);
         status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
         status.classList.add('oracle_error');
         if (error.sign) {
             // The failure comes with a sign: stand it by the dimmed crystal ball
-            const sign = document.createElement('div');
-            sign.className = 'crystal_sign';
+            const sign = el('div', 'crystal_sign');
             sign.innerHTML = `<span>${error.sign}</span>`;
             status.textContent += ' ' + error.aside;
             crystal.appendChild(sign);
             crystal.classList.add('asleep');
         }
-        const retry = document.createElement('button');
-        retry.type = 'button';
-        retry.className = 'draw-btn oracle_retry';
-        retry.textContent = 'Ask the Oracle Again';
-        retry.addEventListener('click', () => request_oracle(cards, is_reversed_list, box));
+        const retry = oracle_button('Ask the Oracle Again', cards, reversed_flags, box);
         box.replaceChildren(crystal, oracle_text(...head, status, retry));
     }
 }
 
-// Results Shown
 function build_result(card, index, is_reversed) {
-    const d = card.dataset;
+    const card_data = card.dataset;
 
-    const box = document.createElement('div');
-    box.className = 'card_box result_card';
+    const box = el('div', 'card_box result_card');
+    const position = el('span', 'position_badge ' + POSITIONS[index].toLowerCase(), POSITIONS[index]);
 
-    const position = document.createElement('span');
-    position.className = 'position_badge ' + POSITIONS[index].toLowerCase();
-    position.textContent = POSITIONS[index];
+    const img = el('img', 'card_img' + (is_reversed ? ' inverted' : ''));
+    img.src = card_data.image;
+    img.alt = card_data.name;
 
-    const img = document.createElement('img');
-    img.className = 'card_img' + (is_reversed ? ' inverted' : '');
-    img.src = d.image;
-    img.alt = d.name;
-
-    const title = document.createElement('h3');
-    title.className = 'card_title';
-    title.textContent = d.name;
-
-    const label = document.createElement('span');
-    label.className = 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright');
-    label.textContent = is_reversed ? 'Reversed' : 'Upright';
-
-    box.append(position, img, title, label,
-               key_points(is_reversed ? d.reversed : d.upright));
+    box.append(position, img, ...card_caption(card_data, is_reversed));
     return box;
 }
 
 reveal_btn.addEventListener('click', () => {
-    const orientations = picked.map(() => Math.random() < 0.25);
+    const orientations = picked.map(roll_reversed);
     result_grid.replaceChildren(...picked.map((card, i) => build_result(card, i, orientations[i])));
     pick_section.hidden = true;
     result_section.hidden = false;
-    // Stagger the Reveal Animation
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
@@ -343,16 +324,14 @@ reveal_btn.addEventListener('click', () => {
 });
 
 
-// ---------- Whimsy mode ----------
 
-// A picked card flies from the arch into the first empty shadow spot
 function place_card(card) {
     const index = slot_cards.indexOf(null);
     if (locked || index === -1 || card.classList.contains('placed')) return;
 
     const slot = slots[index];
     const well = slot.querySelector('.slot_well');
-    const is_reversed = Math.random() < 0.25;
+    const is_reversed = roll_reversed();
     slot.dataset.reversed = is_reversed ? '1' : '';
     slot_cards[index] = card;
     card.classList.add('placed');
@@ -360,63 +339,56 @@ function place_card(card) {
 
     const land = () => {
         fill_slot(slot, card);
-        if (slots.every(s => s.classList.contains('filled'))) begin_reveal();
+        if (slots.every(slot => slot.classList.contains('filled'))) begin_reveal();
     };
-    if (reduce_motion) { land(); return; }
+    if (skip_motion()) { land(); return; }
 
     const from = card.getBoundingClientRect();
     const to = well.getBoundingClientRect();
-    const w = card.offsetWidth, h = card.offsetHeight;
+    const card_width = card.offsetWidth, card_height = card.offsetHeight;
     const angle = parseFloat(card.style.getPropertyValue('--a')) || 0;
     const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
     const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
 
-    const fly = document.createElement('img');
-    fly.className = 'fly_card';
+    const fly = el('img', 'fly_card');
     fly.src = cover_src;
     fly.alt = '';
-    fly.style.width = w + 'px';
-    fly.style.height = h + 'px';
-    fly.style.left = (from.left + from.width / 2 - w / 2) + 'px';
-    fly.style.top = (from.top + from.height / 2 - h / 2) + 'px';
+    fly.style.width = card_width + 'px';
+    fly.style.height = card_height + 'px';
+    fly.style.left = (from.left + from.width / 2 - card_width / 2) + 'px';
+    fly.style.top = (from.top + from.height / 2 - card_height / 2) + 'px';
     document.body.appendChild(fly);
 
     fly.animate([
         { transform: `rotate(${angle}deg) scale(1)` },
-        { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${to.width / w})` }
+        { transform: `translate(${dx}px, ${dy}px) rotate(0deg) scale(${to.width / card_width})` }
     ], { duration: 1100, easing: 'cubic-bezier(0.45, 0.05, 0.2, 1)', fill: 'forwards' })
         .finished.then(() => { fly.remove(); land(); })
         .catch(() => {}); // the flight is cancelled if the reading is reset mid-air
 }
 
-// Put a face-down card in the spot, ready to flip
 function fill_slot(slot, card) {
     const well = slot.querySelector('.slot_well');
-    const d = card.dataset;
+    const card_data = card.dataset;
 
-    const back = document.createElement('div');
-    back.className = 'face back';
+    const back = el('div', 'face back');
     const back_img = document.createElement('img');
     back_img.src = cover_src;
     back_img.alt = 'Face-down tarot card';
     back.appendChild(back_img);
 
-    const front = document.createElement('div');
-    front.className = 'face front';
+    const front = el('div', 'face front');
     const front_img = document.createElement('img');
-    front_img.src = d.image;
-    front_img.alt = d.name;
+    front_img.src = card_data.image;
+    front_img.alt = card_data.name;
     if (slot.dataset.reversed) front_img.classList.add('inverted');
     front.appendChild(front_img);
 
-    const flipper = document.createElement('div');
-    flipper.className = 'flipper';
+    const flipper = el('div', 'flipper');
     flipper.append(back, front);
 
-    const remove = document.createElement('button');
+    const remove = el('button', 'slot_remove', '✕');
     remove.type = 'button';
-    remove.className = 'slot_remove';
-    remove.textContent = '✕';
     remove.setAttribute('aria-label', 'Return this card to the deck');
     remove.addEventListener('click', () => unplace(slot));
 
@@ -431,7 +403,6 @@ function clear_slot(slot) {
     slot.querySelector('.slot_caption').replaceChildren();
 }
 
-// Change your mind: send a placed card back to the arch
 function unplace(slot) {
     if (locked) return;
     const index = slots.indexOf(slot);
@@ -441,46 +412,40 @@ function unplace(slot) {
     update_status();
 }
 
-// All three spots are full: focus on them and flip the cards one by one
 async function begin_reveal() {
     if (locked) return;
     locked = true;
     const run = run_id;
-    slots.forEach(s => s.querySelector('.slot_remove')?.remove());
+    slots.forEach(slot => slot.querySelector('.slot_remove')?.remove());
 
-    await sleep(700);
+    await sleep(300);
     if (run !== run_id) return;
     pick_section.classList.add('revealing');
 
-    await sleep(900);
+    // Let the deck finish folding away before scrolling, so the page isn't moving while it reflows
+    await sleep(850);
     if (run !== run_id) return;
-    slots_wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    slots_wrap.scrollIntoView({ behavior: skip_motion() ? 'auto' : 'smooth', block: 'center' });
 
-    await sleep(1400);
+    await sleep(600);
     for (let i = 0; i < slots.length; i++) {
         if (run !== run_id) return;
         const slot = slots[i];
-        const d = slot_cards[i].dataset;
+        const card_data = slot_cards[i].dataset;
         const is_reversed = Boolean(slot.dataset.reversed);
 
         slot.querySelector('.flipper').classList.add('flipped');
-        await sleep(1500);
+        await sleep(900);
         if (run !== run_id) return;
 
-        const title = document.createElement('h3');
-        title.className = 'card_title';
-        title.textContent = d.name;
-        const label = document.createElement('span');
-        label.className = 'orientation_label ' + (is_reversed ? 'label_reversed' : 'label_upright');
-        label.textContent = is_reversed ? 'Reversed' : 'Upright';
-        slot.querySelector('.slot_caption')
-            .replaceChildren(title, label, key_points(is_reversed ? d.reversed : d.upright));
+        slot.querySelector('.slot_caption').replaceChildren(...card_caption(card_data, is_reversed));
         slot.classList.add('revealed');
-        await sleep(1200);
+        await sleep(500);
     }
     if (run !== run_id) return;
+    pick_status.classList.add('done');
     slots_actions.classList.add('show');
-    offer_oracle(slot_cards, slots.map(s => Boolean(s.dataset.reversed)), slots_oracle);
+    offer_oracle(slot_cards, slots.map(slot => Boolean(slot.dataset.reversed)), slots_oracle);
 }
 
 whimsy_btn.addEventListener('click', () => {
@@ -507,6 +472,7 @@ function reset() {
     slots.forEach(clear_slot);
     Array.from(deck_grid.children).forEach(card => card.classList.remove('placed'));
     pick_section.classList.remove('revealing');
+    pick_status.classList.remove('done');
     slots_actions.classList.remove('show');
     [result_oracle, slots_oracle].forEach(box => { box.hidden = true; box.replaceChildren(); });
     document.querySelectorAll('.fly_card').forEach(el => el.remove());

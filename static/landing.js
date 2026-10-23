@@ -1,8 +1,6 @@
-// Landing page only: word-by-word headline and hero drift on scroll.
 (function () {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // ---- Headline ----
     var h1 = document.querySelector('.hero_content h1');
     if (h1) {
         var words = h1.textContent.trim().split(/\s+/);
@@ -12,22 +10,21 @@
         }).join(' ');
     }
 
-    // ---- Hero drift ----
     var hero = document.querySelector('.hero_section');
     if (!hero) return;
-    var ticking = false;
+    var frame_queued = false;
 
-    function update() {
-        ticking = false;
-        var hp = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight * 0.8)));
-        hero.style.setProperty('--hp', hp.toFixed(3));
+    function update_hero_drift() {
+        frame_queued = false;
+        var hero_progress = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight * 0.8)));
+        hero.style.setProperty('--hp', hero_progress.toFixed(3));
     }
 
-    function onScroll() {
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    function on_scroll() {
+        if (!frame_queued) { frame_queued = true; requestAnimationFrame(update_hero_drift); }
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
+    window.addEventListener('scroll', on_scroll, { passive: true });
+    window.addEventListener('resize', on_scroll);
+    update_hero_drift();
 })();

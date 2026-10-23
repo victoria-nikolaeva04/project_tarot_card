@@ -1,39 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About · Arcana Noctis</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}">
-    <script>document.documentElement.classList.add('js');</script>
-</head>
-<body>
-    <a class="skip_link" href="#main">Skip to main content</a>
-    <div class="sky" aria-hidden="true">
-        <div class="velvet"></div>
-        <div class="stars stars--small"></div>
-        <div class="stars stars--large"></div>
-    </div>
+{% extends 'base.html' %}
+{% set nav_active = 'about' %}
+{% set page_css = 'about.css' %}
+{% set main_class = 'about' %}
+{% block title %}About · Arcana Noctis{% endblock %}
 
-    <div class="scroll_progress" aria-hidden="true"></div>
+{% block content %}
 
-    <nav class="nav_bar" aria-label="Primary">
-        <a class="nav_brand" href="{{ url_for('home') }}">☾ Arcana Noctis</a>
-        <div class="nav_links">
-            <a href="{{ url_for('home') }}">Home</a>
-            <a href="{{ url_for('reading') }}">Daily Reading</a>
-            <a href="{{ url_for('guide') }}">Arcana Guide</a>
-            <a href="{{ url_for('about') }}" aria-current="page">About</a>
-        </div>
-    </nav>
-
-    <main id="main" class="about" tabindex="-1">
-
-        <!-- Header, with hanging pendants -->
         <header class="about_hero">
             <div class="pendants" aria-hidden="true">
                 <div class="pendant" style="--x:2%; --len:260px; --s:6.1s; --d:-2s; --o:-10px; --cs:1.8rem"><i class="string"></i><span class="charm charm--star"></span></div>
@@ -54,7 +26,6 @@
 
         <div class="sec_divider line_reveal" aria-hidden="true"><span>✦</span></div>
 
-        <!-- The site -->
         <section class="about_section" id="the-site" aria-labelledby="site-title">
             <header class="section_head reveal">
                 <span class="section_eyebrow">The site</span>
@@ -94,7 +65,6 @@
 
         <div class="sec_divider line_reveal" aria-hidden="true"><span>✦</span></div>
 
-        <!-- Why Tarot Section -->
         <section class="about_section" id="why-tarot" aria-labelledby="why-title">
             <header class="section_head reveal">
                 <span class="section_eyebrow">The reason</span>
@@ -113,7 +83,6 @@
 
         <div class="sec_divider line_reveal" aria-hidden="true"><span>✦</span></div>
 
-        <!-- The Deck Section -->
         <section class="about_section" id="the-deck" aria-labelledby="deck-title">
             <header class="section_head reveal">
                 <span class="section_eyebrow">The deck</span>
@@ -189,7 +158,6 @@
 
         <br>
         
-        <!-- Candles lining the footer -->
         <div class="shelf" aria-hidden="true">
             <div class="shelf_scene">
                 <div class="candle" style="--w:26px; --h:110px; --dur:2.4s; --delay:-.4s;  left:12%; bottom:0;">
@@ -209,34 +177,4 @@
                 </div>
             </div>
         </div>
-    </main>
-
-    <footer class="site_footer site_footer--full">
-        <div class="footer_inner">
-            <div class="footer_brand reveal" data-reveal="fade">
-                <a class="nav_brand" href="{{ url_for('home') }}">☾ Arcana Noctis</a>
-                <p>Whispers from the velvet dark.</p>
-            </div>
-            <nav class="footer_col reveal" data-reveal="fade" style="--i:1" aria-label="Explore">
-                <h2>Explore</h2>
-                <a href="{{ url_for('reading') }}">Daily Reading</a>
-                <a href="{{ url_for('guide') }}">Arcana Guide</a>
-                <a href="{{ url_for('about') }}">About</a>
-            </nav>
-            <nav class="footer_col reveal" data-reveal="fade" style="--i:2" aria-label="Learn">
-                <h2>Learn</h2>
-                <a href="{{ url_for('home') }}#what-is-tarot">What is Tarot?</a>
-                <a href="{{ url_for('home') }}#menu">What We Have</a>
-                <a href="{{ url_for('home') }}#help">Getting Started</a>
-            </nav>
-        </div>
-        <p class="footer_col reveal" data-reveal="fade" style="--i:3"><a href="---">Created by Victoria</a></p>
-        <div class="calm_wrap">
-            <button type="button" class="calm_toggle" id="calm-toggle" aria-pressed="false">Pause animations</button>
-        </div>
-        <p class="footer_copy">✦ The cards reflect, they do not decide ✦</p>
-    </footer>
-
-    <script src="{{ url_for('static', filename='site.js') }}"></script>
-</body>
-</html>
+{% endblock %}

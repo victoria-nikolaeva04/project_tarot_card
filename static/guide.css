@@ -1,15 +1,3 @@
-/* =========================================================
-   Guide page styles
-   Sections follow the order of templates/guide.html:
-     1. Page base
-     2. Header
-     3. Search + tabs
-     4. Card grid
-     5. Responsive
-   ========================================================= */
-
-
-/* ---------- Page base ---------- */
 html:has(.guide) { scrollbar-gutter: stable; }
 body:has(.guide) { margin: 0; }
 body:has(.guide) .nav_bar { margin-bottom: 0; }
@@ -22,7 +10,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     padding: 3rem clamp(1rem, 4vw, 3rem) 2rem;
 }
 
-/* off-white candles, matching the landing and about pages */
 .guide .wax {
     background: linear-gradient(90deg, #c9bfa9, #efe7d4 28%, #fffaf0 50%, #e8dec8 72%, #b9ae96);
     box-shadow: inset 0 14px 14px -8px rgba(255, 190, 110, 0.55), 0 0 24px rgba(255, 170, 80, 0.1);
@@ -30,8 +17,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
 .guide .wax::before { background: radial-gradient(ellipse at center, #ffe9bf 0%, #f3e8cf 50%, #cfc4ac 100%); }
 .guide .wax::after  { background: linear-gradient(90deg, #e2d8c2, #fbf5e6); }
 
-
-/* ---------- Header ---------- */
 .guide_hero { position: relative; }
 
 .guide_header {
@@ -60,8 +45,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     color: var(--muted);
 }
 
-
-/* ---------- Search + Tabs ---------- */
 .search_container {
     display: flex;
     justify-content: center;
@@ -136,8 +119,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     outline-offset: 4px;
 }
 
-
-/* ---------- Card Grid ---------- */
 .tarot_grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -208,7 +189,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     color: var(--gold);
 }
 
-/* element badges: tints shared with the about page suits */
 .badge {
     display: inline-block;
     margin-bottom: 0.4rem;
@@ -252,8 +232,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
 .card_img.inverted { transform: rotate(180deg); }
 .card_img { transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-
-/* ---------- Card pop-up ---------- */
 .card_box { cursor: pointer; }
 .card_box:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 
@@ -278,7 +256,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     backdrop-filter: blur(6px);
 }
 
-/* crystal-glass panel, same recipe as .btn and the crystal ball */
 .modal_panel {
     position: relative;
     isolation: isolate;
@@ -306,7 +283,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
 }
 .card_modal.open .modal_panel { transform: none; }
 
-/* specular highlight */
 .modal_panel::after {
     content: '';
     position: absolute;
@@ -319,7 +295,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     pointer-events: none;
 }
 
-/* swirling mist inside the glass */
 .modal_mist {
     position: absolute;
     inset: 0;
@@ -352,7 +327,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     animation-direction: reverse;
 }
 
-/* sparkling glowing bits, drifting up around the panel */
 .modal_sparkles {
     position: absolute;
     inset: -34px;
@@ -483,8 +457,6 @@ body:has(.guide) .nav_bar { margin-bottom: 0; }
     .modal_panel, .card_modal { transition: none; animation: none; }
 }
 
-
-/* ---------- Responsive ---------- */
 @media (max-width: 560px) {
     .tarot_grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
     .tab_btn { padding: 0.5rem 1rem; }

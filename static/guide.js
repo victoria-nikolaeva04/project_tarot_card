@@ -1,10 +1,9 @@
-// Filter/Searchbar JS Script
 const search_input = document.getElementById('global_search');
 const tab_buttons = document.querySelectorAll('.tab_btn');
 const card_boxes = document.querySelectorAll('.card_box');
 let active_category = 'all';
 
-function execute_universal_filter() {
+function apply_filters() {
     const query = search_input.value.toLowerCase().trim();
 
     // Match the query only at the start of a word
@@ -19,7 +18,6 @@ function execute_universal_filter() {
         const sign = card.getAttribute('data_sign');
         const meanings = card.getAttribute('data_meanings');
 
-        // Text Search Check
         const matches_search = word_pattern.test(name) ||
                               word_pattern.test(arcana) ||
                               word_pattern.test(suit) ||
@@ -27,7 +25,6 @@ function execute_universal_filter() {
                               word_pattern.test(sign) ||
                               word_pattern.test(meanings);
 
-        // Tab Filter Check
         let matches_category = false;
         if (active_category === 'all') {
             matches_category = true;
@@ -45,10 +42,8 @@ function execute_universal_filter() {
     });
 }
 
-// Search Input Event
-search_input.addEventListener('input', execute_universal_filter);
+search_input.addEventListener('input', apply_filters);
 
-// Category Tab Clicking Event
 tab_buttons.forEach(tab => {
     tab.addEventListener('click', () => {
         // clicking the filter that is already on (the one showing an x) turns it off
@@ -63,12 +58,11 @@ tab_buttons.forEach(tab => {
         button.setAttribute('aria-pressed', 'true');
 
         active_category = button.getAttribute('data_category');
-        execute_universal_filter();
+        apply_filters();
     });
 });
 
 
-// Flip Position: Invert the card image and swap upright/reversed meaning
 card_boxes.forEach(card => {
     const flip_btn = card.querySelector('.flip_btn');
     const img = card.querySelector('.card_img');
@@ -83,18 +77,17 @@ card_boxes.forEach(card => {
     });
 });
 
-// Card pop-up: open on card click, fill from the card's data attributes
 const modal = document.getElementById('card_modal');
 const modal_img = document.getElementById('modal_img');
 const modal_sparkles = document.getElementById('modal_sparkles');
-let last_focus = null;
+let previously_focused = null;
 
 function open_modal(card) {
-    last_focus = document.activeElement;
+    previously_focused = document.activeElement;
 
-    const src_img = card.querySelector('.card_img');
-    modal_img.src = src_img.src;
-    modal_img.alt = src_img.alt;
+    const grid_img = card.querySelector('.card_img');
+    modal_img.src = grid_img.src;
+    modal_img.alt = grid_img.alt;
     modal_img.classList.remove('inverted');
 
     const badge = card.querySelector('.badge');
@@ -124,12 +117,11 @@ function close_modal() {
     modal.classList.remove('open');
     document.body.style.overflow = '';
     setTimeout(() => { modal.hidden = true; }, 300);
-    if (last_focus) last_focus.focus();
+    if (previously_focused) previously_focused.focus();
 }
 
-// Floating sparkles around the pop-up
 for (let i = 0; i < 28; i++) {
-    const s = document.createElement('i');
+    const sparkle = document.createElement('i');
     s.className = 'sparkle';
     s.style.cssText =
         '--x:' + (Math.random() * 100).toFixed(1) + '%;' +
@@ -155,7 +147,7 @@ card_boxes.forEach(card => {
     });
 });
 
-modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close_modal));
+modal.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', close_modal));
 
 document.addEventListener('keydown', e => {
     if (modal.hidden) return;

@@ -3,27 +3,27 @@ import glob
 import json
 from collections import Counter, defaultdict
 
-rows = []
+log_entries = []
 for path in sorted(glob.glob('logs/oracle_usage.jsonl*')):
     with open(path, encoding='utf-8') as f:
-        rows += [json.loads(line) for line in f if line.strip()]
+        log_entries += [json.loads(line) for line in f if line.strip()]
 
-if not rows:
+if not log_entries:
     raise SystemExit('No usage logged yet.')
 
-by_day = defaultdict(lambda: Counter())
+by_day = defaultdict(Counter)
 by_visitor = Counter()
-outcomes = Counter(r['outcome'] for r in rows)
-for r in rows:
-    day = r['time'][:10]
+outcomes = Counter(entry['outcome'] for entry in log_entries)
+for entry in log_entries:
+    day = entry['time'][:10]
     by_day[day]['requests'] += 1
-    by_day[day]['tokens'] += r['total_tokens']
-    by_visitor[r['visitor']] += r['total_tokens']
+    by_day[day]['tokens'] += entry['total_tokens']
+    by_visitor[entry['visitor']] += entry['total_tokens']
 
-print(f'{len(rows)} requests, {sum(r["total_tokens"] for r in rows)} tokens in total\n')
+print(f'{len(log_entries)} requests, {sum(entry["total_tokens"] for entry in log_entries)} tokens in total\n')
 print('Per day:')
-for day, c in sorted(by_day.items()):
-    print(f'  {day}: {c["requests"]} requests, {c["tokens"]} tokens')
+for day, totals in sorted(by_day.items()):
+    print(f'  {day}: {totals["requests"]} requests, {totals["tokens"]} tokens')
 print('\nTop visitors by tokens:')
 for visitor, tokens in by_visitor.most_common(5):
     print(f'  {visitor}: {tokens}')

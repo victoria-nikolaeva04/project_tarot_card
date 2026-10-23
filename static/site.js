@@ -1,39 +1,35 @@
-// Shared by pages: pause-animations toggle, scroll reveals, count-up stats, progress line.
 (function () {
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var root = document.documentElement;
+    var reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var html_root = document.documentElement;
 
-    // ---- Pause-Animations toggle ----
-    var toggle = document.getElementById('calm-toggle');
-    function setCalm(on, save) {
-        root.classList.toggle('calm', on);
-        if (toggle) {
-            toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
-            toggle.textContent = on ? 'Resume animations' : 'Pause animations';
+    var calm_toggle = document.getElementById('calm-toggle');
+    function set_calm(on, save) {
+        html_root.classList.toggle('calm', on);
+        if (calm_toggle) {
+            calm_toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+            calm_toggle.textContent = on ? 'Resume animations' : 'Pause animations';
         }
         if (save) { try { localStorage.setItem('calm', on ? '1' : '0'); } catch (e) {} }
     }
-    var saved = null;
-    try { saved = localStorage.getItem('calm'); } catch (e) {}
-    setCalm(saved === null ? reduce : saved === '1', false);
-    if (toggle) toggle.addEventListener('click', function () { setCalm(!root.classList.contains('calm'), true); });
+    var saved_calm = null;
+    try { saved_calm = localStorage.getItem('calm'); } catch (e) {}
+    set_calm(saved_calm === null ? reduce_motion : saved_calm === '1', false);
+    if (calm_toggle) calm_toggle.addEventListener('click', function () { set_calm(!html_root.classList.contains('calm'), true); });
 
-    // ---- Reveal on Scroll  ----
-    var items = document.querySelectorAll('.reveal, .line_reveal');
+    var reveal_items = document.querySelectorAll('.reveal, .line_reveal');
     if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
+        var reveal_observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (e) {
-                if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+                if (e.isIntersecting) { e.target.classList.add('in'); reveal_observer.unobserve(e.target); }
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
-        items.forEach(function (el) { io.observe(el); });
+        reveal_items.forEach(function (el) { reveal_observer.observe(el); });
     } else {
-        items.forEach(function (el) { el.classList.add('in'); });
+        reveal_items.forEach(function (el) { el.classList.add('in'); });
     }
 
-    // ---- Count-up Stats ----
-    var counters = document.querySelectorAll('[data-count]');
-    function countUp(el) {
+    var counter_elements = document.querySelectorAll('[data-count]');
+    function count_up(el) {
         var target = parseInt(el.getAttribute('data-count'), 10);
         var start = null;
         function tick(t) {
@@ -45,31 +41,30 @@
         el.textContent = '0';
         requestAnimationFrame(tick);
     }
-    if (!reduce && 'IntersectionObserver' in window) {
-        var cio = new IntersectionObserver(function (entries) {
+    if (!reduce_motion && 'IntersectionObserver' in window) {
+        var counter_observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (e) {
-                if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); }
+                if (e.isIntersecting) { count_up(e.target); counter_observer.unobserve(e.target); }
             });
         }, { threshold: 0.6 });
-        counters.forEach(function (el) { cio.observe(el); });
+        counter_elements.forEach(function (el) { counter_observer.observe(el); });
     }
 
-    if (reduce) return;
+    if (reduce_motion) return;
 
-    // ---- Progress line ----
-    var ticking = false;
+    var frame_queued = false;
 
-    function update() {
-        ticking = false;
-        var max = root.scrollHeight - window.innerHeight;
-        root.style.setProperty('--sp', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
+    function update_scroll_progress() {
+        frame_queued = false;
+        var max = html_root.scrollHeight - window.innerHeight;
+        html_root.style.setProperty('--sp', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
     }
 
-    function onScroll() {
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    function on_scroll() {
+        if (!frame_queued) { frame_queued = true; requestAnimationFrame(update_scroll_progress); }
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
+    window.addEventListener('scroll', on_scroll, { passive: true });
+    window.addEventListener('resize', on_scroll);
+    update_scroll_progress();
 })();
