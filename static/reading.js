@@ -318,6 +318,7 @@ reveal_btn.addEventListener('click', () => {
     result_grid.replaceChildren(...picked.map((card, i) => build_result(card, i, orientations[i])));
     pick_section.hidden = true;
     result_section.hidden = false;
+    window.scrollTo({ top: 0, behavior: skip_motion() ? 'auto' : 'smooth' });
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
@@ -426,7 +427,7 @@ async function begin_reveal() {
     // Let the deck finish folding away before scrolling, so the page isn't moving while it reflows
     await sleep(850);
     if (run !== run_id) return;
-    slots_wrap.scrollIntoView({ behavior: skip_motion() ? 'auto' : 'smooth', block: 'center' });
+    window.scrollTo({ top: 0, behavior: skip_motion() ? 'auto' : 'smooth' });
 
     await sleep(600);
     for (let i = 0; i < slots.length; i++) {
