@@ -46,7 +46,7 @@ A tarot card reader/dictionary for the whimsical people
 - Added TIMEOUT on the AI Oracle
 
 ## Error Cases
-For the AI Oracle, since I am using a free-tier of Gemini's API keys, so here is a graph of all the errors and their message: 
+For the AI Oracle, since I am using a free-tier of Gemini's API keys, so here is a graph of all the errors and their messages: 
 <img width="499" height="242" alt="image" src="https://github.com/user-attachments/assets/1186af12-c05b-4d09-aa69-eee4f2fa1d7a" />
 
 
