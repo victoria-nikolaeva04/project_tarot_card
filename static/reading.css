@@ -440,7 +440,7 @@ body:has(.reading) {
 
 .pick_controls {
     position: sticky;
-    top: 4.5rem;
+    top: calc(var(--nav-h, 4rem) + 0.5rem);
     z-index: 1100;
     margin-top: 1.75rem;
     max-height: 8rem;
@@ -863,4 +863,35 @@ body:has(.reading) {
     .crystal .orb,
     .crystal .mist,
     .crystal .orbit { animation: none; }
+}
+
+@media (max-width: 560px) {
+    .reading_header { padding-bottom: 2.5rem; }
+    .reading_section { padding-top: 3.5rem; }
+    .mode_row { top: -3rem; }
+    .pick_status { font-size: 1.2rem; }
+    .pick_controls { gap: 0.6rem; margin-top: 1.25rem; }
+    .pick_controls .draw-btn,
+    .pick_controls .flip_btn { flex: 1 1 auto; padding-inline: 1.1rem; letter-spacing: 0.12em; }
+
+    .slots { gap: 0.4rem; }
+    .slot .position_badge { max-width: 100%; padding: 0.15rem 0.4rem; font-size: 0.58rem; letter-spacing: 0.08em; }
+    #pick_section.revealing .slots { --sw: clamp(88px, 26vw, 230px); }
+    #slots_actions,
+    .result_actions { margin-top: 3rem; }
+
+    /* the oracle text is long: centred headings, left-aligned paragraphs */
+    .oracle_reading { padding: 0; margin-top: 2rem; }
+    .oracle_reading p { text-align: left; }
+}
+
+/* a tapped card shouldn't stay lifted */
+@media (hover: none) {
+    .deck_grid:not(.arch) .deck_card:hover:not(.selected) {
+        transform: none;
+        border-color: rgba(230, 193, 120, 0.3);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    .draw-btn:hover:not(:disabled),
+    .flip_btn:hover { transform: none; }
 }

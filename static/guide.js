@@ -59,6 +59,8 @@ tab_buttons.forEach(tab => {
 
         active_category = button.getAttribute('data_category');
         apply_filters();
+        // on phones the pills scroll sideways: keep the chosen one in view
+        button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
     });
 });
 
