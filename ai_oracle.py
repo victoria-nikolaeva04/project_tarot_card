@@ -21,7 +21,7 @@ class EmptyReading(Exception):
 POSITIONS = ['Past', 'Present', 'Future']
 RETRIES = 2         # extra attempts when the model is overloaded
 RETRY_DELAY = 1.5   # seconds, multiplied by the attempt number
-MODEL_NAME = 'gemini-3.8-flash'
+MODEL_NAME = 'gemini-3.1-flash-lite'
 MAX_OUTPUT_TOKENS = 2048   # hard cap on spend per reading (a 300 word reading needs far less)
 
 GUARDRAILS = """
