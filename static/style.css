@@ -1059,6 +1059,21 @@ section[id] { scroll-margin-top: 90px; }
 .footer_col a:hover,
 .footer_col a:focus-visible { color: var(--gold); background-size: 100% 1px; }
 
+.creator_link::after {
+    content: "✦";
+    display: inline-block;
+    margin-left: 0.45em;
+    color: var(--gold);
+    animation: twinkle 1.6s ease-in-out infinite alternate;
+}
+.creator_link:hover::after,
+.creator_link:focus-visible::after { animation-duration: 0.6s; }
+
+.calm .creator_link::after { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+    .creator_link::after { animation: none; }
+}
+
 .footer_col,
 .footer_copy {
     max-width: 1000px;
