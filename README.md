@@ -34,6 +34,21 @@ A tarot card reader/dictionary for the whimsical people
 - Added a loader + a re-try button if API request initally fails due to 503 HTTP Error
 - Update the images to be smaller + webp format to help with performance
 
+## Day 6
+- Fix minor bugs throughout the site
+- Added user tracking/logging
+- Worked on Code Cleanup
+- Reorganize the CSS
+- Added alot more error handling for the AI Oracle
+
+## Day 7
+- Figured out deployment on PythonAnywhere.com
+- Added TIMEOUT on the AI Oracle
+
+## Error Cases
+For the AI Oracle, since I am using a free-tier of Gemini's API keys, so here is a graph of all the errors and their message: 
+<img width="499" height="242" alt="image" src="https://github.com/user-attachments/assets/1186af12-c05b-4d09-aa69-eee4f2fa1d7a" />
+
 
 ## Use of AI
 Used AI as an additional tool for debugging and building basic 'content' (for example - text within the 'About' page)
