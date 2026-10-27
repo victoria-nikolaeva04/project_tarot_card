@@ -259,9 +259,10 @@ async function request_oracle(cards, reversed_flags, box) {
                 }))
             })
         });
-        const data = await response.json();
+        // The host can answer with an HTML error page (timeouts, gateway errors) instead of JSON
+        const data = await response.json().catch(() => ({}));
         if (run !== run_id) return;
-        if (!response.ok) {
+        if (!response.ok || typeof data.reading !== 'string') {
             const failure = new Error(data.error);
             failure.sign = data.sign;
             failure.aside = data.aside;

@@ -6,7 +6,9 @@ from google.genai import errors, types
 
 load_dotenv()
 
-gemini_client = genai.Client()
+REQUEST_TIMEOUT_MS = 25_000   # fail fast: the host drops requests that hang for minutes
+
+gemini_client = genai.Client(http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_MS))
 
 card_meanings = pd.read_csv('tarot_card_meanings.csv')
 card_meanings.columns = card_meanings.columns.str.strip()
