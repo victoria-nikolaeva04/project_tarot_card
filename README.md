@@ -44,6 +44,9 @@ A tarot card reader/dictionary for the whimsical people
 ## Day 7
 - Figured out deployment on PythonAnywhere.com
 - Added TIMEOUT on the AI Oracle
+- Fixed pop-up bug on the Arcana Guide Page
+- Made the buttons on the Reading Page stay on screen for better user experience
+- Did a mobile responsive sweep so the website is more usuable on a phone/smaller screen
 
 ## Error Cases
 For the AI Oracle, since I am using a free-tier of Gemini's API keys, so here is a graph of all the errors and their messages: 
