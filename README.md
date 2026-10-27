@@ -49,7 +49,7 @@ A tarot card reader/dictionary for the whimsical people
 - Did a mobile responsive sweep so the website is more usuable on a phone/smaller screen
 
 ## Error Cases
-For the AI Oracle, since I am using a free-tier of Gemini's API keys, so here is a graph of all the errors and their messages: 
+For the AI Oracle, a table of all the different errors and their messages: 
 <img width="499" height="242" alt="image" src="https://github.com/user-attachments/assets/1186af12-c05b-4d09-aa69-eee4f2fa1d7a" />
 
 
