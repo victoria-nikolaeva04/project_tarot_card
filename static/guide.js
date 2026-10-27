@@ -122,16 +122,16 @@ function close_modal() {
 
 for (let i = 0; i < 28; i++) {
     const sparkle = document.createElement('i');
-    s.className = 'sparkle';
-    s.style.cssText =
+    sparkle.className = 'sparkle';
+    sparkle.style.cssText =
         '--x:' + (Math.random() * 100).toFixed(1) + '%;' +
         '--y:' + (Math.random() * 100).toFixed(1) + '%;' +
         '--sz:' + (3 + Math.random() * 6).toFixed(1) + 'px;' +
         '--dur:' + (4 + Math.random() * 5).toFixed(1) + 's;' +
         '--dx:' + (Math.random() * 60 - 30).toFixed(0) + 'px;' +
         '--delay:' + (-Math.random() * 8).toFixed(1) + 's;';
-    if (Math.random() < 0.35) s.classList.add('sparkle--gold');
-    modal_sparkles.appendChild(s);
+    if (Math.random() < 0.35) sparkle.classList.add('sparkle--gold');
+    modal_sparkles.appendChild(sparkle);
 }
 
 card_boxes.forEach(card => {
