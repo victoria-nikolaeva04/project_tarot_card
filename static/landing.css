@@ -7,6 +7,7 @@
     justify-content: center;
     max-width: none;
     min-height: calc(100vh - 70px);
+    min-height: calc(100svh - var(--nav-h, 70px)); /* svh: the phone's URL bar doesn't push the hero off screen */
     padding: 4rem clamp(1rem, 4vw, 3rem) 6rem;
     text-align: center;
 }
@@ -136,17 +137,18 @@
 
 .intro_side { display: flex; flex-direction: column; gap: 1.5rem; }
 
-.intro_cards { position: relative; width: min(310px, 80vw); height: 590px; margin: auto; }
+/* sized in percentages of a 310 x 590 box, so the stack scales down instead of spilling off narrow screens */
+.intro_cards { position: relative; width: min(310px, 100%); aspect-ratio: 310 / 590; margin: auto; }
 
 .intro_card {
     position: absolute;
-    width: 200px;
+    width: 64.5%;
     margin: 0;
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.intro_card--moon { top: 0;    left: 0;    transform: rotate(-7deg); z-index: 1; }
-.intro_card--star { top: 150px; left: 100px; transform: rotate(6deg);  z-index: 2; }
+.intro_card--moon { top: 0;     left: 0;     transform: rotate(-7deg); z-index: 1; }
+.intro_card--star { top: 25.4%; left: 32.3%; transform: rotate(6deg);  z-index: 2; }
 
 .intro_cards:hover .intro_card--moon { transform: rotate(-11deg) translate(-8px, -4px); }
 .intro_cards:hover .intro_card--star { transform: rotate(10deg) translate(8px, 4px); }
@@ -379,4 +381,23 @@ a.menu_row:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px;
     .landing .hero_candles { translate: none; opacity: 1; }
     .menu_row::after { transform: scaleX(1); }
     .scroll_cue { display: none; }
+}
+
+@media (max-width: 560px) {
+    /* leave room under the buttons for the candles */
+    .landing .hero_section { padding: 3rem 1rem 11rem; }
+    .landing .hero_content p { font-size: 1.1rem; }
+    .hero_candles { left: 1.25rem; right: 1.25rem; }
+    .intro { padding-bottom: 3.5rem; }
+    .help { padding-bottom: 3.5rem; }
+    .help_steps li { padding: 1.5rem 1.3rem 1.4rem; }
+    .help_steps h3 { font-size: 1.7rem; }
+    .menu_row { padding: 1.3rem 0.25rem; gap: 0.75rem; }
+}
+
+@media (hover: none) {
+    .help_steps li:hover { transform: none; }
+    a.menu_row:hover { padding-left: 0.5rem; }
+    .intro_cards:hover .intro_card--moon { transform: rotate(-7deg); }
+    .intro_cards:hover .intro_card--star { transform: rotate(6deg); }
 }

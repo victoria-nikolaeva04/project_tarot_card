@@ -221,3 +221,15 @@
 @media (max-width: 480px) {
     .symbolism_grid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 760px) {
+    .about_section { padding-top: 2.5rem; padding-bottom: 3rem; }
+    .deck_note { grid-template-columns: 3.4rem 1fr; }
+    .deck_numeral { font-size: 1.7rem; }
+    .pull_quote { padding-left: 1.2rem; }
+    .sub_head { margin-top: 2.5rem; }
+}
+
+@media (hover: none) {
+    .glass_card:hover .item_num { background: rgba(230, 193, 120, 0.08); color: var(--gold); transform: none; }
+}

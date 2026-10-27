@@ -50,6 +50,15 @@
         counter_elements.forEach(function (el) { counter_observer.observe(el); });
     }
 
+    // The nav wraps onto two rows on phones, so measure it instead of guessing: sticky bars and anchors use --nav-h
+    var nav_bar = document.querySelector('.nav_bar');
+    if (nav_bar) {
+        var set_nav_height = function () { html_root.style.setProperty('--nav-h', nav_bar.offsetHeight + 'px'); };
+        set_nav_height();
+        window.addEventListener('resize', set_nav_height);
+        if ('ResizeObserver' in window) new ResizeObserver(set_nav_height).observe(nav_bar);
+    }
+
     if (reduce_motion) return;
 
     var frame_queued = false;
