@@ -984,8 +984,6 @@ body:has(.reading) {
     .oracle_panel { grid-template-columns: minmax(0, 1fr); }
     .oracle_side { width: 100%; }
     .oracle_side .crystal { --ball: 110px; }
-    .oracle_cards { flex-direction: row; gap: 0.75rem; }
-    .oracle_card { width: 72px; }
     .oracle_reading p { font-size: 1.15rem; }
     .oracle_panel { border-radius: 22px; }
 }
@@ -1066,6 +1064,15 @@ body:has(.reading) {
     color: var(--gold);
 }
 .oracle_card_name { font-family: var(--font-body); font-size: 1rem; line-height: 1.15; color: var(--parchment); }
+
+/* mobile: lay the spread out in a compact horizontal row */
+@media (max-width: 700px) {
+    .oracle_cards { flex-direction: row; justify-content: center; align-items: flex-start; gap: 0.75rem; }
+    .oracle_card { width: 72px; }
+    .oracle_card figcaption { margin-top: 0.35rem; }
+    .oracle_card_pos { font-size: 0.55rem; letter-spacing: 0.12em; }
+    .oracle_card_name { font-size: 0.85rem; }
+}
 
 /* desktop only: phones and tablets save readings another way */
 .oracle_download {
