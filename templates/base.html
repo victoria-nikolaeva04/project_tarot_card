@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b0614">
     <title>{% block title %}{% endblock %}</title>
+    {%- set share_title = 'Arcana Noctis · Tarot Card Reader' %}
+    {%- set share_desc = 'Seventy-eight cards of archetype and omen. Draw your daily cards and explore the Rider-Waite-Smith deck.' %}
+    {%- set share_image = url_for('static', filename='images/og_preview.png', _external=True) %}
+    <meta name="description" content="{{ share_desc }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Arcana Noctis">
+    <meta property="og:title" content="{{ share_title }}">
+    <meta property="og:description" content="{{ share_desc }}">
+    <meta property="og:url" content="{{ url_for('home', _external=True) }}">
+    <meta property="og:image" content="{{ share_image }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Arcana Noctis landing page: Let the Cards Illuminate your Path">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ share_image }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
