@@ -142,7 +142,7 @@ function update_status() {
         return;
     }
     pick_status.textContent = picked.length === MAX_PICKS
-        ? 'Your 3 cards are chosen. Flip them when you are ready.'
+        ? 'Your 3 cards are chosen.'
         : `Choose ${MAX_PICKS} cards that call to you (${picked.length}/${MAX_PICKS})`;
     reveal_btn.disabled = picked.length !== MAX_PICKS;
     deck_grid.classList.toggle('deck_full', picked.length === MAX_PICKS);
