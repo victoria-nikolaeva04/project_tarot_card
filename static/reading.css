@@ -44,16 +44,16 @@ body:has(.reading) {
 .reading_header {
     max-width: 46rem;
     margin: 0 auto;
-    padding: clamp(3.5rem, 9vh, 6rem) clamp(1rem, 4vw, 3rem) 3.5rem;
+    padding: clamp(2.25rem, 5vh, 3.5rem) clamp(1rem, 4vw, 3rem) 2rem;
     text-align: center;
 }
 
 .reading_header .section_eyebrow { letter-spacing: 0.4em; }
 
 .reading_header h1 {
-    margin: 1rem 0 1.4rem;
+    margin: 0.6rem 0 0.9rem;
     font-family: var(--font-body);
-    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
     font-weight: 500;
     line-height: 1.04;
     letter-spacing: -0.015em;
@@ -63,7 +63,7 @@ body:has(.reading) {
 .reading_header p {
     max-width: 34rem;
     margin-inline: auto;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: var(--muted);
 }
 
@@ -436,7 +436,7 @@ body:has(.reading) {
 }
 #pick_section:not(.whimsy_on) #slots_actions { display: none; }
 
-#pick_section.revealing .slots { --sw: clamp(104px, 27vw, 230px); }
+#pick_section.revealing .slots { --sw: clamp(90px, 24vw, 165px); }
 
 .pick_controls {
     position: sticky;
@@ -474,7 +474,7 @@ body:has(.reading) {
 
 .result_grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 270px));
     justify-content: center;
     gap: clamp(1.25rem, 3vw, 2rem);
     padding: 0;
@@ -482,7 +482,7 @@ body:has(.reading) {
 
 .result_card {
     position: relative;
-    padding: 1.8rem 1.4rem 1.7rem;
+    padding: 1.2rem 1.2rem 1.2rem;
     border: 1px solid rgba(230, 193, 120, 0.28);
     border-top: 2px solid rgba(230, 193, 120, 0.7);
     border-radius: 18px;
@@ -496,9 +496,9 @@ body:has(.reading) {
 .result_card .card_img {
     display: block;
     width: 100%;
-    max-width: 200px;
+    max-width: 150px;
     height: auto;
-    margin: 0 auto 1rem;
+    margin: 0 auto 0.7rem;
     border-radius: 10px;
     border: 1px solid rgba(230, 193, 120, 0.45);
     box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55), 0 0 26px rgba(155, 93, 229, 0.2);
@@ -527,7 +527,7 @@ body:has(.reading) {
 .result_card .card_title {
     margin: 0.2rem 0 0.4rem;
     font-family: var(--font-body);
-    font-size: 1.8rem;
+    font-size: 1.45rem;
     font-weight: 500;
     line-height: 1.15;
     color: var(--parchment);
@@ -624,6 +624,12 @@ body:has(.reading) {
     isolation: isolate;
     animation: oracle_rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+/* The unanswered offer is a compact call to action; the full-size ball appears once the Oracle speaks */
+.oracle_reading.offer { margin-top: 1.5rem; align-items: center; }
+.oracle_reading.offer .crystal { --ball: 90px; }
+.oracle_reading.offer .oracle_text { padding-top: 0; }
+.oracle_reading.offer .oracle_status { margin-bottom: 0.75rem; font-size: 1.1rem; }
 
 .crystal {
     --ball: 170px;
@@ -876,7 +882,7 @@ body:has(.reading) {
 
     .slots { gap: 0.4rem; }
     .slot .position_badge { max-width: 100%; padding: 0.15rem 0.4rem; font-size: 0.58rem; letter-spacing: 0.08em; }
-    #pick_section.revealing .slots { --sw: clamp(88px, 26vw, 230px); }
+    #pick_section.revealing .slots { --sw: clamp(80px, 25vw, 165px); }
     #slots_actions,
     .result_actions { margin-top: 3rem; }
 

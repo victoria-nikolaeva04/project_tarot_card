@@ -202,6 +202,7 @@ function offer_oracle(cards, reversed_flags, box) {
     const ask = oracle_button('Ask the Oracle', cards, reversed_flags, box);
     finish_loading(box);
     box.replaceChildren(make_crystal(), oracle_text(eyebrow, status, ask));
+    box.classList.add('offer');
     box.hidden = false;
 }
 
@@ -244,6 +245,7 @@ async function request_oracle(cards, reversed_flags, box) {
     const head = [eyebrow, title, divider];
     const status = el('p', 'oracle_status', 'The Oracle is gazing into your cards...');
     box.replaceChildren(crystal, oracle_text(...head, status));
+    box.classList.remove('offer');
     box.classList.add('loading');
     box.hidden = false;
     box.setAttribute('aria-busy', 'true');
