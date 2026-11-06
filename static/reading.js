@@ -253,7 +253,25 @@ async function fetch_oracle(cards, reversed_flags) {
     return data.reading;
 }
 
-function reading_nodes(text, cards) {
+function card_figure(card, is_reversed, index) {
+    const figure = el('figure', 'oracle_card');
+    const img = el('img', is_reversed ? 'inverted' : '');
+    img.src = card.dataset.image;
+    img.alt = card.dataset.name + (is_reversed ? ' (reversed)' : '');
+    const caption = el('figcaption');
+    caption.append(el('span', 'oracle_card_pos', POSITIONS[index]));
+    figure.title = card.dataset.name;
+    figure.append(img, caption);
+    return figure;
+}
+
+function spread_row(cards, flags) {
+    const row = el('div', 'oracle_cards');
+    cards.forEach((card, i) => row.appendChild(card_figure(card, flags[i], i)));
+    return row;
+}
+
+function reading_nodes(text, cards, flags) {
     const eyebrow = el('span', 'section_eyebrow', 'The Oracle Speaks');
     const title = el('h3', '', 'Your Reading');
     title.id = 'oracle_title';
@@ -293,8 +311,8 @@ function error_nodes(error, crystal) {
     return [eyebrow, title, status, retry];
 }
 
-// The ball glides from the middle of the screen up to the top while the dialog opens beneath it
-function show_answer(nodes, crystal) {
+// The ball glides from the middle of the screen into the dialog's left side as the reading opens
+function show_answer(nodes, crystal, spread) {
     const first = crystal.getBoundingClientRect();
     oracle_reading.replaceChildren(...nodes);
     oracle_modal.classList.remove('loading');
@@ -302,6 +320,11 @@ function show_answer(nodes, crystal) {
     oracle_modal.removeAttribute('aria-busy');
     oracle_wait.hidden = true;
     oracle_panel.hidden = false;
+    // the ball settles into the dialog's left column, with the spread beneath it
+    const side = el('div', 'oracle_side');
+    side.append(oracle_crystal);
+    if (spread) side.append(spread);
+    oracle_panel.prepend(side);
     oracle_modal.scrollTop = 0;
     oracle_panel.querySelector('.oracle_close').focus({ preventScroll: true });
 
@@ -320,6 +343,8 @@ function open_oracle() {
     if (oracle_modal.hidden) oracle_prev_focus = document.activeElement;
 
     const crystal = make_crystal();
+    oracle_panel.querySelector('.oracle_side')?.remove();
+    oracle_modal.querySelector('.oracle_stage').prepend(oracle_crystal); // back in the middle while loading
     oracle_crystal.replaceChildren(crystal);
     oracle_reading.replaceChildren();
     oracle_panel.hidden = true;
@@ -339,7 +364,7 @@ function open_oracle() {
 
     job.promise.then(text => {
         if (shown !== oracle_shown) return;
-        show_answer(reading_nodes(text, cards), crystal);
+        show_answer(reading_nodes(text, cards, flags), crystal, spread_row(cards, flags));
     }, error => {
         if (oracle_job === job) oracle_job = null; // a failed request is never reused
         if (shown !== oracle_shown) return;

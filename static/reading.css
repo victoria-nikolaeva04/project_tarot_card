@@ -693,12 +693,14 @@ body:has(.reading) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: min(46rem, 100%);
-    margin: auto;       /* centred while the ball is loading; the open dialog makes it tall enough to sit at the top */
+    width: min(66rem, 100%);
+    margin: auto;
 }
 .oracle_crystal { padding: 1.5rem 0 0.4rem; }
-.oracle_modal.answered .oracle_crystal .crystal { --ball: 110px; }
-.oracle_modal.answered .oracle_crystal { padding-top: 0.5rem; }
+/* once answered the ball sits in the dialog's left column with the spread beneath it, the text on the right */
+.oracle_side { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; width: 210px; }
+.oracle_side > .oracle_crystal { padding: 0.5rem 0 0; }
+.oracle_side .crystal { --ball: 150px; }
 
 .oracle_wait {
     margin-top: 1.2rem;
@@ -714,6 +716,10 @@ body:has(.reading) {
 .oracle_panel {
     position: relative;
     isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
     width: 100%;
     margin-top: 1.4rem;
     padding: clamp(1.75rem, 4vw, 2.75rem);
@@ -975,7 +981,11 @@ body:has(.reading) {
 
 @media (max-width: 700px) {
     .crystal { --ball: 140px; }
-    .oracle_modal.answered .oracle_crystal .crystal { --ball: 90px; }
+    .oracle_panel { grid-template-columns: minmax(0, 1fr); }
+    .oracle_side { width: 100%; }
+    .oracle_side .crystal { --ball: 110px; }
+    .oracle_cards { flex-direction: row; gap: 0.75rem; }
+    .oracle_card { width: 72px; }
     .oracle_reading p { font-size: 1.15rem; }
     .oracle_panel { border-radius: 22px; }
 }
@@ -1030,3 +1040,31 @@ body:has(.reading) {
     text-shadow: none;
     padding: 0;
 }
+
+/* the spread, shown above the reading */
+.oracle_cards {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+.oracle_card { margin: 0; width: 100px; text-align: center; }
+.oracle_card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1.73;
+    object-fit: cover;
+    border: 1px solid rgba(230, 193, 120, 0.6);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), 0 0 18px rgba(155, 93, 229, 0.45);
+}
+.oracle_card img.inverted { transform: rotate(180deg); }
+.oracle_card figcaption { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.1rem; }
+.oracle_card_pos {
+    font-family: var(--font-head);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+.oracle_card_name { font-family: var(--font-body); font-size: 1rem; line-height: 1.15; color: var(--parchment); }
