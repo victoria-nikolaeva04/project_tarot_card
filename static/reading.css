@@ -938,7 +938,7 @@ body:has(.reading) {
     color: var(--gold);
 }
 
-.oracle_reading p:first-of-type::first-letter {
+.oracle_reading p:first-of-type:not(.oracle_status)::first-letter {
     font-family: var(--font-display);
     font-size: 2.6em;
     line-height: 0.9;
@@ -1033,13 +1033,11 @@ body:has(.reading) {
     .flip_btn:hover { transform: none; }
 }
 
-.oracle_reading .oracle_error::first-letter {
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    text-shadow: none;
-    padding: 0;
-}
+/* the error state: centred, no drop cap, ball and message aligned */
+.oracle_panel:has(.oracle_error) { align-items: center; }
+.oracle_reading:has(.oracle_error) { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.oracle_reading .oracle_error { max-width: 28rem; margin: 0.6rem 0 0; }
+.oracle_reading:has(.oracle_error) .oracle_retry { margin-top: 1.4rem; }
 
 /* the spread, shown above the reading */
 .oracle_cards {
