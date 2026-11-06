@@ -69,17 +69,17 @@
                         <div class="slot_caption" aria-live="polite"></div>
                     </div>
                 </div>
-                <div class="oracle_reading" id="slots_oracle" hidden></div>
                 <div class="result_actions" id="slots_actions">
-                    <button type="button" id="slots_again_btn" class="draw-btn">Draw Again</button>
+                    <button type="button" id="slots_oracle_btn" class="draw-btn oracle_ask">Ask the Oracle</button>
+                    <button type="button" id="slots_again_btn" class="flip_btn">Draw Again</button>
                 </div>
             </section>
 
             <section id="result_section" aria-label="Your spread" hidden>
                 <div class="result_grid" id="result_grid"></div>
-                <div class="oracle_reading" id="result_oracle" hidden></div>
                 <div class="result_actions">
-                    <button type="button" id="again_btn" class="draw-btn">Draw Again</button>
+                    <button type="button" id="oracle_btn" class="draw-btn oracle_ask">Ask the Oracle</button>
+                    <button type="button" id="again_btn" class="flip_btn">Draw Again</button>
                 </div>
             </section>
         </div>
@@ -100,6 +100,22 @@
                 </div>
                 <div class="candle" style="--w:24px; --h:58px;  --dur:2s;   --delay:-.2s;  left:87%; bottom:0;">
                     <div class="candle_glow"></div><div class="flame"></div><div class="wick"></div><div class="wax"></div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block after_footer %}
+        <div class="oracle_modal" id="oracle_modal" hidden>
+            <div class="oracle_backdrop" data-close></div>
+            <div class="oracle_sparkles" id="oracle_sparkles" aria-hidden="true"></div>
+            <div class="oracle_stage" id="oracle_stage">
+                <div class="oracle_crystal" id="oracle_crystal"></div>
+                <p class="oracle_wait" id="oracle_wait" aria-live="polite">The Oracle is gazing into your cards...</p>
+                <div class="oracle_panel" id="oracle_panel" role="dialog" aria-modal="true" aria-labelledby="oracle_title" hidden>
+                    <button type="button" class="oracle_close" data-close aria-label="Close">✕</button>
+                    <div class="oracle_reading" id="oracle_reading"></div>
                 </div>
             </div>
         </div>
