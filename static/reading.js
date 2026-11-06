@@ -1,7 +1,7 @@
 const MAX_PICKS = 3;
 const POSITIONS = ['Past', 'Present', 'Future'];
 const ARCH_HALF_SPAN = 72;  // degrees either side of the top of the arch
-const CARD_RATIO = 1.73;    // card height / width
+const CARD_RATIO = 1.73;  // card height / width
 const ARCH_TOP_MARGIN = 36;  // px above the highest card of the arch
 const REVERSED_CHANCE = 0.25;
 
@@ -18,8 +18,14 @@ const slots_wrap = document.getElementById('slots');
 const slots = Array.from(slots_wrap.querySelectorAll('.slot'));
 const slots_actions = document.getElementById('slots_actions');
 const slots_again_btn = document.getElementById('slots_again_btn');
-const result_oracle = document.getElementById('result_oracle');
-const slots_oracle = document.getElementById('slots_oracle');
+const oracle_btn = document.getElementById('oracle_btn');
+const slots_oracle_btn = document.getElementById('slots_oracle_btn');
+const oracle_modal = document.getElementById('oracle_modal');
+const oracle_crystal = document.getElementById('oracle_crystal');
+const oracle_wait = document.getElementById('oracle_wait');
+const oracle_panel = document.getElementById('oracle_panel');
+const oracle_reading = document.getElementById('oracle_reading');
+const oracle_sparkles = document.getElementById('oracle_sparkles');
 
 const reduce_motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // "Pause animations" (site.js sets .calm on <html>) skips the waits and flights, but the cards still appear
@@ -130,7 +136,7 @@ function update_status() {
     if (whimsy) {
         const filled = slot_cards.filter(Boolean).length;
         pick_status.textContent = filled === MAX_PICKS
-            ? 'The cards are turning...'
+            ? '' // blank, not removed: the line keeps its height until the reveal folds it away
             : `Choose ${MAX_PICKS} cards from the arch (${filled}/${MAX_PICKS})`;
         deck_grid.classList.remove('deck_full');
         return;
@@ -195,17 +201,7 @@ function fill_with_bold_cards(paragraph, text, card_names) {
     });
 }
 
-// AI Oracle: waits for a button press so tokens are only spent when the user asks
-function offer_oracle(cards, reversed_flags, box) {
-    const eyebrow = el('span', 'section_eyebrow', 'The Oracle Awaits');
-    const status = el('p', 'oracle_status', 'Would you like the Oracle to interpret your cards?');
-    const ask = oracle_button('Ask the Oracle', cards, reversed_flags, box);
-    finish_loading(box);
-    box.replaceChildren(make_crystal(), oracle_text(eyebrow, status, ask));
-    box.classList.add('offer');
-    box.hidden = false;
-}
-
+// AI Oracle: only runs when the user presses "Ask the Oracle", so tokens are only spent on request
 function make_crystal() {
     const crystal = document.createElement('div');
     crystal.className = 'crystal';
@@ -216,90 +212,167 @@ function make_crystal() {
     return crystal;
 }
 
-function oracle_text(...children) {
-    const text = el('div', 'oracle_text');
-    text.append(...children);
-    return text;
+let current_reading = null;  // { cards, flags } of the spread on the table
+let oracle_job = null;       // { key, promise } the request for that spread, kept so closing the pop-up never loses it
+let oracle_shown = 0;        // bumps on every open/close so a late answer never lands in a closed pop-up
+let oracle_prev_focus = null;
+
+for (let i = 0; i < 28; i++) {
+    const sparkle = document.createElement('i');
+    sparkle.className = 'sparkle';
+    sparkle.style.cssText =
+        '--x:' + (Math.random() * 100).toFixed(1) + '%;' +
+        '--y:' + (Math.random() * 100).toFixed(1) + '%;' +
+        '--sz:' + (3 + Math.random() * 6).toFixed(1) + 'px;' +
+        '--dur:' + (4 + Math.random() * 5).toFixed(1) + 's;' +
+        '--dx:' + (Math.random() * 60 - 30).toFixed(0) + 'px;' +
+        '--delay:' + (-Math.random() * 8).toFixed(1) + 's;';
+    if (Math.random() < 0.35) sparkle.classList.add('sparkle--gold');
+    oracle_sparkles.appendChild(sparkle);
 }
 
-function oracle_button(label, cards, reversed_flags, box) {
-    const button = el('button', 'draw-btn oracle_retry', label);
-    button.type = 'button';
-    button.addEventListener('click', () => request_oracle(cards, reversed_flags, box));
-    return button;
+async function fetch_oracle(cards, reversed_flags) {
+    const response = await fetch('/oracle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            cards: cards.map((card, i) => ({
+                name: card.dataset.name,
+                reversed: reversed_flags[i]
+            }))
+        })
+    });
+    // The host can answer with an HTML error page (timeouts, gateway errors) instead of JSON
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || typeof data.reading !== 'string') {
+        const failure = new Error(data.error);
+        failure.sign = data.sign;
+        failure.aside = data.aside;
+        throw failure;
+    }
+    return data.reading;
 }
 
-function finish_loading(box) {
-    box.removeAttribute('aria-busy');
-    box.classList.remove('loading');
-}
-
-async function request_oracle(cards, reversed_flags, box) {
-    const run = run_id;
+function reading_nodes(text, cards) {
     const eyebrow = el('span', 'section_eyebrow', 'The Oracle Speaks');
-    const title = el('h3', '', '');
+    const title = el('h3', '', 'Your Reading');
+    title.id = 'oracle_title';
     const divider = el('div', 'oracle_divider');
     divider.setAttribute('aria-hidden', 'true');
     divider.innerHTML = '<span>✦</span>';
-    const crystal = make_crystal();
-    const head = [eyebrow, title, divider];
-    const status = el('p', 'oracle_status', 'The Oracle is gazing into your cards...');
-    box.replaceChildren(crystal, oracle_text(...head, status));
-    box.classList.remove('offer');
-    box.classList.add('loading');
-    box.hidden = false;
-    box.setAttribute('aria-busy', 'true');
 
-    try {
-        const response = await fetch('/oracle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                cards: cards.map((card, i) => ({
-                    name: card.dataset.name,
-                    reversed: reversed_flags[i]
-                }))
-            })
-        });
-        // The host can answer with an HTML error page (timeouts, gateway errors) instead of JSON
-        const data = await response.json().catch(() => ({}));
-        if (run !== run_id) return;
-        if (!response.ok || typeof data.reading !== 'string') {
-            const failure = new Error(data.error);
-            failure.sign = data.sign;
-            failure.aside = data.aside;
-            throw failure;
-        }
-
-        const paragraphs = data.reading.split(/\n\s*\n/).map((text, index) => {
-            const paragraph = el('p');
-            paragraph.style.setProperty('--i', index);
-            fill_with_bold_cards(paragraph, text.trim(), cards.map(card => card.dataset.name));
-            return paragraph;
-        });
-        const sign_off = el('span', 'oracle_sign_off', '☾ ✦ ☽');
-        sign_off.setAttribute('aria-hidden', 'true');
-        sign_off.style.setProperty('--i', paragraphs.length);
-        paragraphs.push(sign_off);
-        finish_loading(box);
-        box.replaceChildren(crystal, oracle_text(...head, ...paragraphs));
-    } catch (error) {
-        if (run !== run_id) return;
-        finish_loading(box);
-        status.textContent = error.message || 'The Oracle is silent right now. Please try again in a moment.';
-        status.classList.add('oracle_error');
-        if (error.sign) {
-            // The failure comes with a sign: stand it by the dimmed crystal ball
-            const sign = el('div', 'crystal_sign');
-            sign.innerHTML = `<span>${error.sign}</span>`;
-            status.textContent += ' ' + error.aside;
-            crystal.appendChild(sign);
-            crystal.classList.add('asleep');
-        }
-        const retry = oracle_button('Ask the Oracle Again', cards, reversed_flags, box);
-        box.replaceChildren(crystal, oracle_text(...head, status, retry));
-    }
+    const paragraphs = text.split(/\n\s*\n/).map((part, index) => {
+        const paragraph = el('p');
+        paragraph.style.setProperty('--i', index);
+        fill_with_bold_cards(paragraph, part.trim(), cards.map(card => card.dataset.name));
+        return paragraph;
+    });
+    const sign_off = el('span', 'oracle_sign_off', '☾ ✦ ☽');
+    sign_off.setAttribute('aria-hidden', 'true');
+    sign_off.style.setProperty('--i', paragraphs.length);
+    return [eyebrow, title, divider, ...paragraphs, sign_off];
 }
+
+function error_nodes(error, crystal) {
+    const eyebrow = el('span', 'section_eyebrow', 'The Oracle Is Silent');
+    const title = el('h3', '', 'Your Reading');
+    title.id = 'oracle_title';
+    const status = el('p', 'oracle_status oracle_error',
+                      error.message || 'The Oracle is silent right now. Please try again in a moment.');
+    if (error.sign) {
+        // The failure comes with a sign: stand it by the dimmed crystal ball
+        const sign = el('div', 'crystal_sign');
+        sign.innerHTML = `<span>${error.sign}</span>`;
+        status.textContent += ' ' + error.aside;
+        crystal.appendChild(sign);
+        crystal.classList.add('asleep');
+    }
+    const retry = el('button', 'draw-btn oracle_retry', 'Ask the Oracle Again');
+    retry.type = 'button';
+    retry.addEventListener('click', () => { oracle_job = null; open_oracle(); });
+    return [eyebrow, title, status, retry];
+}
+
+// The ball glides from the middle of the screen up to the top while the dialog opens beneath it
+function show_answer(nodes, crystal) {
+    const first = crystal.getBoundingClientRect();
+    oracle_reading.replaceChildren(...nodes);
+    oracle_modal.classList.remove('loading');
+    oracle_modal.classList.add('answered');
+    oracle_modal.removeAttribute('aria-busy');
+    oracle_wait.hidden = true;
+    oracle_panel.hidden = false;
+    oracle_modal.scrollTop = 0;
+    oracle_panel.querySelector('.oracle_close').focus({ preventScroll: true });
+
+    if (skip_motion()) return;
+    const last = crystal.getBoundingClientRect();
+    crystal.animate([
+        { transform: `translate(${first.left - last.left}px, ${first.top - last.top}px) scale(${first.width / last.width})` },
+        { transform: 'none' }
+    ], { duration: 900, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' });
+}
+
+function open_oracle() {
+    if (!current_reading) return;
+    const { cards, flags } = current_reading;
+    const shown = ++oracle_shown;
+    if (oracle_modal.hidden) oracle_prev_focus = document.activeElement;
+
+    const crystal = make_crystal();
+    oracle_crystal.replaceChildren(crystal);
+    oracle_reading.replaceChildren();
+    oracle_panel.hidden = true;
+    oracle_wait.hidden = false;
+    oracle_modal.classList.remove('answered');
+    oracle_modal.classList.add('loading');
+    oracle_modal.setAttribute('aria-busy', 'true');
+    oracle_modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => oracle_modal.classList.add('open'));
+
+    const key = cards.map((card, i) => card.dataset.name + flags[i]).join('|');
+    if (!oracle_job || oracle_job.key !== key) {
+        oracle_job = { key, promise: fetch_oracle(cards, flags) };
+    }
+    const job = oracle_job;
+
+    job.promise.then(text => {
+        if (shown !== oracle_shown) return;
+        show_answer(reading_nodes(text, cards), crystal);
+    }, error => {
+        if (oracle_job === job) oracle_job = null; // a failed request is never reused
+        if (shown !== oracle_shown) return;
+        show_answer(error_nodes(error, crystal), crystal);
+    });
+}
+
+function close_oracle() {
+    if (oracle_modal.hidden) return;
+    oracle_shown++;
+    oracle_modal.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        if (!oracle_modal.classList.contains('open')) oracle_modal.hidden = true;
+    }, skip_motion() ? 0 : 300);
+    if (oracle_prev_focus) oracle_prev_focus.focus();
+}
+
+oracle_modal.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', close_oracle));
+oracle_btn.addEventListener('click', open_oracle);
+slots_oracle_btn.addEventListener('click', open_oracle);
+
+document.addEventListener('keydown', event => {
+    if (oracle_modal.hidden) return;
+    if (event.key === 'Escape') close_oracle();
+    if (event.key === 'Tab') {
+        const items = Array.from(oracle_modal.querySelectorAll('button')).filter(b => b.offsetParent !== null);
+        if (!items.length) { event.preventDefault(); return; }
+        const first = items[0], last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+});
 
 function build_result(card, index, is_reversed) {
     const card_data = card.dataset;
@@ -324,7 +397,7 @@ reveal_btn.addEventListener('click', () => {
     Array.from(result_grid.children).forEach((box, i) => {
         box.style.animationDelay = (i * 0.25) + 's';
     });
-    offer_oracle(picked, orientations, result_oracle);
+    current_reading = { cards: picked.slice(), flags: orientations };
 });
 
 
@@ -359,8 +432,9 @@ function place_card(card) {
     fly.alt = '';
     fly.style.width = card_width + 'px';
     fly.style.height = card_height + 'px';
-    fly.style.left = (from.left + from.width / 2 - card_width / 2) + 'px';
-    fly.style.top = (from.top + from.height / 2 - card_height / 2) + 'px';
+    // Placed in page coordinates (not fixed to the window), so scrolling mid-flight carries it with the page
+    fly.style.left = (from.left + window.scrollX + from.width / 2 - card_width / 2) + 'px';
+    fly.style.top = (from.top + window.scrollY + from.height / 2 - card_height / 2) + 'px';
     document.body.appendChild(fly);
 
     fly.animate([
@@ -449,7 +523,7 @@ async function begin_reveal() {
     if (run !== run_id) return;
     pick_status.classList.add('done');
     slots_actions.classList.add('show');
-    offer_oracle(slot_cards, slots.map(slot => Boolean(slot.dataset.reversed)), slots_oracle);
+    current_reading = { cards: slot_cards.slice(), flags: slots.map(slot => Boolean(slot.dataset.reversed)) };
 }
 
 whimsy_btn.addEventListener('click', () => {
@@ -478,7 +552,12 @@ function reset() {
     pick_section.classList.remove('revealing');
     pick_status.classList.remove('done');
     slots_actions.classList.remove('show');
-    [result_oracle, slots_oracle].forEach(box => { box.hidden = true; box.replaceChildren(); });
+    current_reading = null;
+    oracle_job = null;
+    oracle_shown++;
+    oracle_modal.hidden = true;
+    oracle_modal.classList.remove('open');
+    document.body.style.overflow = '';
     document.querySelectorAll('.fly_card').forEach(el => el.remove());
 
     shuffle_deck();
