@@ -271,6 +271,30 @@ function spread_row(cards, flags) {
     return row;
 }
 
+function download_reading(text, cards, flags) {
+    const today = new Date();
+    const stamp = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    const lines = [
+        'Arcana Noctis - Daily Reading',
+        stamp,
+        '',
+        ...cards.map((card, i) => `${POSITIONS[i]}: ${card.dataset.name} (${flags[i] ? 'Reversed' : 'Upright'})`),
+        '',
+        text.trim(),
+        '',
+        'The cards reflect, they do not decide.',
+        ''
+    ];
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `tarot-reading-${stamp}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
 function reading_nodes(text, cards, flags) {
     const eyebrow = el('span', 'section_eyebrow', 'The Oracle Speaks');
     const title = el('h3', '', 'Your Reading');
@@ -288,7 +312,14 @@ function reading_nodes(text, cards, flags) {
     const sign_off = el('span', 'oracle_sign_off', '☾ ✦ ☽');
     sign_off.setAttribute('aria-hidden', 'true');
     sign_off.style.setProperty('--i', paragraphs.length);
-    return [eyebrow, title, divider, ...paragraphs, sign_off];
+    // an icon beside the close button; the tooltip comes from data-tip
+    const save = el('button', 'oracle_download');
+    save.type = 'button';
+    save.dataset.tip = 'Download.txt';
+    save.setAttribute('aria-label', 'Download reading as a .txt file');
+    save.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>';
+    save.addEventListener('click', () => download_reading(text, cards, flags));
+    return [eyebrow, title, divider, ...paragraphs, sign_off, save];
 }
 
 function error_nodes(error, crystal) {
